@@ -1,0 +1,22 @@
+{
+  "scenario_id": "task1_005",
+  "task": "task1",
+  "diff": "--- a/core/config.py\n+++ b/core/config.py\n@@ -1,5 +1,6 @@\n import os\n+import yaml\n \n DATABASE_URL = os.getenv('DATABASE_URL', 'sqlite:///db.sqlite3')\n DEBUG = os.getenv('DEBUG', 'False').lower() == 'true'\n SECRET_KEY = os.getenv('SECRET_KEY', 'insecure-default-key')",
+  "dependency_map": {
+    "core/config.py": ["os"]
+  },
+  "file_history": {
+    "core/config.py": {
+      "commits_last_30d": 1,
+      "last_incident": null,
+      "test_coverage": 70
+    }
+  },
+  "available_reviewers": ["alice", "bob"],
+  "ground_truth": {
+    "risk_level": "HIGH",
+    "blast_radius": [],
+    "recommended_reviewer": "alice",
+    "merge_decision": "BLOCK"
+  }
+}

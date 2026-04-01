@@ -1,0 +1,24 @@
+{
+  "scenario_id": "task2_004",
+  "task": "task2",
+  "diff": "--- a/api/views.py\n+++ b/api/views.py\n@@ -1,5 +1,6 @@\n from rest_framework.views import APIView\n from rest_framework.response import Response\n+from rest_framework.permissions import IsAuthenticated\n \n class UserView(APIView):\n     def get(self, request, user_id):\n@@ -10,6 +11,9 @@\n         return Response({'user': user_data})\n \n     def put(self, request, user_id):\n+        if request.user.id != user_id and not request.user.is_staff:\n+            return Response({'error': 'Forbidden'}, status=403)\n         # Update user logic\n         return Response({'success': True})",
+  "dependency_map": {
+    "api/views.py": ["auth/models.py", "core/permissions.py", "core/middleware.py"],
+    "core/permissions.py": ["auth/models.py"],
+    "auth/models.py": ["db/connection.py"]
+  },
+  "file_history": {
+    "api/views.py": {
+      "commits_last_30d": 7,
+      "last_incident": "2024-07-15",
+      "test_coverage": 60
+    }
+  },
+  "available_reviewers": ["alice", "david"],
+  "ground_truth": {
+    "risk_level": "MEDIUM",
+    "blast_radius": ["api/views.py", "auth/models.py", "core/permissions.py", "db/connection.py"],
+    "recommended_reviewer": "alice",
+    "merge_decision": "REQUEST_CHANGES"
+  }
+}

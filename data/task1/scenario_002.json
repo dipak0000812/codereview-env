@@ -1,0 +1,22 @@
+{
+  "scenario_id": "task1_002",
+  "task": "task1",
+  "diff": "--- a/utils/format.py\n+++ b/utils/format.py\n@@ -2,6 +2,7 @@\n \n def format_date(dt, fmt='%Y-%m-%d'):\n     if isinstance(dt, datetime):\n+        return dt.strftime(fmt)\n         return dt.isoformat()\n     return str(dt)",
+  "dependency_map": {
+    "utils/format.py": ["datetime"]
+  },
+  "file_history": {
+    "utils/format.py": {
+      "commits_last_30d": 2,
+      "last_incident": null,
+      "test_coverage": 90
+    }
+  },
+  "available_reviewers": ["alice", "bob"],
+  "ground_truth": {
+    "risk_level": "LOW",
+    "blast_radius": [],
+    "recommended_reviewer": "bob",
+    "merge_decision": "APPROVE"
+  }
+}

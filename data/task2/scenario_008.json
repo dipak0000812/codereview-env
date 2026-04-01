@@ -1,0 +1,24 @@
+{
+  "scenario_id": "task2_008",
+  "task": "task2",
+  "diff": "--- a/core/cache.py\n+++ b/core/cache.py\n@@ -1,6 +1,7 @@\n import redis\n from functools import wraps\n import json\n+from typing import Callable, Any\n \n redis_client = redis.Redis(host='localhost', port=6379, db=0)\n \n@@ -8,6 +9,9 @@\n     ttl: int = 300\n ):\n     def decorator(func: Callable) -> Callable:\+        @wraps(func)\n+        def wrapper(*args, **kwargs) -> Any:\n+            cache_key = f'{func.__name__}:{args}:{kwargs}'",
+  "dependency_map": {
+    "core/cache.py": ["api/views.py", "core/config.py"],
+    "api/views.py": ["auth/models.py", "core/permissions.py"],
+    "core/config.py": []
+  },
+  "file_history": {
+    "core/cache.py": {
+      "commits_last_30d": 3,
+      "last_incident": "2024-09-10",
+      "test_coverage": 55
+    }
+  },
+  "available_reviewers": ["alice", "david"],
+  "ground_truth": {
+    "risk_level": "MEDIUM",
+    "blast_radius": ["core/cache.py", "api/views.py", "auth/models.py", "core/permissions.py"],
+    "recommended_reviewer": "david",
+    "merge_decision": "APPROVE"
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "scenario_id": "task2_006",
+  "task": "task2",
+  "diff": "--- a/core/permissions.py\n+++ b/core/permissions.py\n@@ -5,6 +5,8 @@\n from functools import wraps\n \n def require_auth(view_func):\n+    def wrapper(request, *args, **kwargs):\n+        if not hasattr(request, 'user') or not request.user.is_authenticated:\n+            return JsonResponse({'error': 'Unauthorized'}, status=401)\n     @wraps(view_func)\n     def wrapped(request, *args, **kwargs):\n         return view_func(request, *args, **kwargs)",
+  "dependency_map": {
+    "core/permissions.py": ["auth/models.py", "core/middleware.py"],
+    "auth/models.py": ["db/connection.py"],
+    "core/middleware.py": ["api/router.py"]
+  },
+  "file_history": {
+    "core/permissions.py": {
+      "commits_last_30d": 4,
+      "last_incident": "2024-08-22",
+      "test_coverage": 65
+    }
+  },
+  "available_reviewers": ["alice", "bob"],
+  "ground_truth": {
+    "risk_level": "HIGH",
+    "blast_radius": ["core/permissions.py", "auth/models.py", "core/middleware.py", "db/connection.py", "api/router.py"],
+    "recommended_reviewer": "alice",
+    "merge_decision": "REQUEST_CHANGES"
+  }
+}

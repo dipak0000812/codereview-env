@@ -1,0 +1,22 @@
+{
+  "scenario_id": "task1_007",
+  "task": "task1",
+  "diff": "--- a/tests/test_auth.py\n+++ b/tests/test_auth.py\n@@ -15,6 +15,12 @@\n def test_login_success():\n     response = client.post('/api/auth/login', json={'username': 'test', 'password': 'test'})\n     assert response.status_code == 200\n+\n+def test_login_invalid_credentials():\n+    response = client.post('/api/auth/login', json={'username': 'test', 'password': 'wrong'})\n+    assert response.status_code == 401\n+\n+def test_login_missing_fields():\n+    response = client.post('/api/auth/login', json={})\n+    assert response.status_code == 400",
+  "dependency_map": {
+    "tests/test_auth.py": ["auth/views.py", "pytest"]
+  },
+  "file_history": {
+    "tests/test_auth.py": {
+      "commits_last_30d": 4,
+      "last_incident": null,
+      "test_coverage": 75
+    }
+  },
+  "available_reviewers": ["alice", "bob"],
+  "ground_truth": {
+    "risk_level": "LOW",
+    "blast_radius": [],
+    "recommended_reviewer": "bob",
+    "merge_decision": "APPROVE"
+  }
+}

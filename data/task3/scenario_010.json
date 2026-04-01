@@ -1,0 +1,22 @@
+{
+  "scenario_id": "task3_010",
+  "task": "task3",
+  "diff": "--- a/core/email.py\n+++ b/core/email.py\n@@ -1,5 +1,6 @@\n import smtplib\n from email.mime.text import MIMEText\n+from email.mime.multipart import MIMEMultipart\n from typing import List\n \n def send_email(to: List[str], subject: str, body: str):\n@@ -10,3 +11,15 @@\n     msg['From'] = 'noreply@example.com'\n     msg['To'] = ', '.join(to)\n     s.send_message(msg)\n+\n+def send_html_email(to: List[str], subject: str, html: str):\n+    msg = MIMEMultipart('alternative')\n+    msg['Subject'] = subject\n+    msg['To'] = ', '.join(to)\n+    part = MIMEText(html, 'html')\n+    msg.attach(part)\n+    with smtplib.SMTP_SSL('smtp.gmail.com', 465) as s:\n+        s.login('noreply@example.com', os.getenv('EMAIL_PASSWORD'))\n+        s.send_message(msg)",
+  "dependency_map": {
+    "core/email.py": []
+  },
+  "file_history": {
+    "core/email.py": {
+      "commits_last_30d": 1,
+      "last_incident": null,
+      "test_coverage": 50
+    }
+  },
+  "available_reviewers": ["alice", "charlie"],
+  "ground_truth": {
+    "risk_level": "MEDIUM",
+    "blast_radius": ["core/email.py"],
+    "recommended_reviewer": "charlie",
+    "merge_decision": "REQUEST_CHANGES"
+  }
+}

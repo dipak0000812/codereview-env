@@ -1,0 +1,22 @@
+{
+  "scenario_id": "task3_004",
+  "task": "task3",
+  "diff": "--- a/core/config.py\n+++ b/core/config.py\n@@ -1,8 +1,15 @@\n import os\n+import yaml\n+from pathlib import Path\n \n DATABASE_URL = os.getenv('DATABASE_URL', 'sqlite:///db.sqlite3')\n DEBUG = os.getenv('DEBUG', 'False').lower() == 'true'\n-SECRET_KEY = os.getenv('SECRET_KEY', 'insecure-default-key')\n+SECRET_KEY = os.getenv('SECRET_KEY')\n+if not SECRET_KEY:\n+    raise ValueError('SECRET_KEY must be set')\n+\n+def load_config(config_path: str = 'config.yaml'):\n+    with open(config_path) as f:\n+        return yaml.safe_load(f)",
+  "dependency_map": {
+    "core/config.py": []
+  },
+  "file_history": {
+    "core/config.py": {
+      "commits_last_30d": 2,
+      "last_incident": "2024-07-30",
+      "test_coverage": 70
+    }
+  },
+  "available_reviewers": ["alice", "charlie", "david"],
+  "ground_truth": {
+    "risk_level": "HIGH",
+    "blast_radius": ["core/config.py"],
+    "recommended_reviewer": "alice",
+    "merge_decision": "BLOCK"
+  }
+}

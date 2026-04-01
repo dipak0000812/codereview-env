@@ -1,0 +1,23 @@
+{
+  "scenario_id": "task3_005",
+  "task": "task3",
+  "diff": "--- a/core/security.py\n+++ b/core/security.py\n@@ -1,5 +1,6 @@\n import hashlib\n import secrets\n+from typing import Optional\n \n def hash_password(password: str) -> str:\n     salt = secrets.token_hex(16)\n@@ -8,3 +9,15 @@\n def verify_password(password: str, hashed: str) -> bool:\n     # Verify using constant-time comparison\n     return secrets.compare_digest(password.encode(), hashed.encode())\n+\n+class TokenGenerator:\n+    def __init__(self):\n+        self.secret = os.getenv('TOKEN_SECRET', secrets.token_hex(32))\n+\n+    def generate(self, user_id: int) -> str:\n+        payload = f'{user_id}.{time.time()}'.encode()\n+        signature = hmac.new(self.secret.encode(), payload, hashlib.sha256).hexdigest()\n+        return f'{payload.decode()}.{signature}'",
+  "dependency_map": {
+    "core/security.py": ["auth/models.py"],
+    "auth/models.py": ["db/connection.py"]
+  },
+  "file_history": {
+    "core/security.py": {
+      "commits_last_30d": 5,
+      "last_incident": "2024-09-12",
+      "test_coverage": 55
+    }
+  },
+  "available_reviewers": ["bob", "charlie", "david"],
+  "ground_truth": {
+    "risk_level": "CRITICAL",
+    "blast_radius": ["core/security.py", "auth/models.py", "db/connection.py"],
+    "recommended_reviewer": "david",
+    "merge_decision": "BLOCK"
+  }
+}
