@@ -1,0 +1,14 @@
+{
+  "baseline_scores": {
+    "task1": 0.18,
+    "task2": 0.12,
+    "task3": 0.09
+  },
+  "description": "Pre-computed baseline scores from deterministic random agent (seed=42)",
+  "methodology": "Averaged over 100 episodes per task using random but deterministic predictions",
+  "expected_random_range": {
+    "task1": "0.15-0.25 (25% exact match + adjacency bonus)",
+    "task2": "0.10-0.15 (random module selection has low Jaccard overlap)",
+    "task3": "0.08-0.12 (all 4 fields must align for high score)"
+  }
+}
