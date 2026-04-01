@@ -1,0 +1,22 @@
+name: codereview-env
+version: "1.0.0"
+description: >
+  RL environment for training agents to perform intelligent code review.
+  Agents assess risk, compute blast radius, and recommend reviewers
+  across 3 tasks of increasing difficulty using real open-source diffs.
+tags:
+  - code-review
+  - developer-tools
+  - software-engineering
+  - risk-assessment
+entrypoint: server.app:app
+tasks:
+  - name: task1
+    description: Classify risk level from code diff
+    difficulty: easy
+  - name: task2
+    description: Identify blast radius from dependency map
+    difficulty: medium
+  - name: task3
+    description: Full review decision with composite scoring
+    difficulty: hard
