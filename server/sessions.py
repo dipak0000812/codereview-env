@@ -12,17 +12,20 @@ from typing import Dict, Any
 _sessions: Dict[str, Dict[str, Any]] = {}
 
 
-def create_session(task: str, scenario: dict) -> str:
+def create_session(task: str, scenario: dict, episode_id: str = None) -> str:
     """Create a new episode session.
 
     Args:
         task: Task identifier (task1, task2, task3)
         scenario: Scenario data dictionary
+        episode_id: Optional UUID string (if not provided, one is generated)
 
     Returns:
         episode_id: UUID string for this episode
     """
-    episode_id = str(uuid.uuid4())
+    if episode_id is None:
+        episode_id = str(uuid.uuid4())
+
     _sessions[episode_id] = {
         'task': task,
         'scenario': scenario,
