@@ -64,72 +64,39 @@ class CodeReviewObservation:
 
 
 class HTTPEnvClient:
-    """HTTP client for interacting with CodeReview environment.
-
-    Usage:
-        client = HTTPEnvClient("http://localhost:7860")
-
-        # Reset environment
-        obs, episode_id = client.reset("task1")
-
-        # Take step
-        action = CodeReviewAction(
-            episode_id=episode_id,
-            risk_level="HIGH",
-            affected_modules=["auth/models.py"],
-            recommended_reviewer="alice",
-            merge_decision="BLOCK"
-        )
-        obs = client.step(action)
-
-        # Get tasks info
-        tasks = client.get_tasks()
-    """
+    """Asynchronous HTTP client for interacting with CodeReview environment."""
 
     def __init__(self, base_url: str = "http://localhost:7860"):
-        """Initialize client.
-
-        Args:
-            base_url: Base URL of the environment server
-        """
+        """Initialize client."""
         self.base_url = base_url.rstrip('/')
-        self.client = httpx.Client(timeout=30.0)
+        self.client = httpx.AsyncClient(timeout=30.0)
 
-    def close(self):
+    async def close(self):
         """Close the HTTP client."""
-        self.client.close()
+        await self.client.aclose()
 
-    def reset(self, task: str = "task1") -> Tuple[CodeReviewObservation, str]:
-        """Reset the environment.
-
-        Args:
-            task: Task identifier (task1, task2, task3)
-
-        Returns:
-            Tuple of (observation, episode_id)
-        """
-        response = self.client.post(
+    async def reset(self, task: str = "task1") -> Tuple[CodeReviewObservation, str]:
+        """Reset the environment."""
+        response = await self.client.post(
             f"{self.base_url}/reset",
             json={"task": task}
         )
         response.raise_for_status()
         data = response.json()
-
-        obs = CodeReviewObservation.from_dict(data['observation'])
-        episode_id = data['episode_id']
+        
+        obs_dict = data['observation']
+        # Merge reward/done from top level
+        obs_dict['reward'] = data.get('reward', 0.0)
+        obs_dict['done'] = data.get('done', False)
+        
+        obs = CodeReviewObservation.from_dict(obs_dict)
+        episode_id = obs_dict.get('episode_id', '')
 
         return obs, episode_id
 
-    def step(self, action: CodeReviewAction) -> CodeReviewObservation:
-        """Take a step in the environment.
-
-        Args:
-            action: Action to take
-
-        Returns:
-            Observation after taking the step
-        """
-        response = self.client.post(
+    async def step(self, action: CodeReviewAction) -> CodeReviewObservation:
+        """Take a step in the environment."""
+        response = await self.client.post(
             f"{self.base_url}/step",
             json={
                 "action": action.to_dict(),
@@ -139,31 +106,28 @@ class HTTPEnvClient:
         response.raise_for_status()
         data = response.json()
 
-        return CodeReviewObservation.from_dict(data['observation'])
+        obs_dict = data['observation']
+        # Merge reward/done from top level
+        obs_dict['reward'] = data.get('reward', 0.0)
+        obs_dict['done'] = data.get('done', False)
 
-    def get_tasks(self) -> Dict[str, Any]:
+        return CodeReviewObservation.from_dict(obs_dict)
+
+    async def get_tasks(self) -> Dict[str, Any]:
         """Get available tasks and action schema."""
-        response = self.client.get(f"{self.base_url}/tasks")
+        response = await self.client.get(f"{self.base_url}/tasks")
         response.raise_for_status()
         return response.json()
 
-    def get_baseline_scores(self) -> Dict[str, float]:
+    async def get_baseline_scores(self) -> Dict[str, float]:
         """Get pre-computed baseline scores."""
-        response = self.client.get(f"{self.base_url}/baseline")
+        response = await self.client.get(f"{self.base_url}/baseline")
         response.raise_for_status()
         return response.json()
 
-    def grade(self, action: Dict, scenario_id: str) -> Dict[str, Any]:
-        """Grade an action against a specific scenario.
-
-        Args:
-            action: Action dictionary
-            scenario_id: Scenario ID to grade against
-
-        Returns:
-            Dictionary with 'score' and 'feedback'
-        """
-        response = self.client.post(
+    async def grade(self, action: Dict, scenario_id: str) -> Dict[str, Any]:
+        """Grade an action against a specific scenario."""
+        response = await self.client.post(
             f"{self.base_url}/grader",
             json={
                 "action": action,
@@ -173,18 +137,18 @@ class HTTPEnvClient:
         response.raise_for_status()
         return response.json()
 
-    def health(self) -> bool:
+    async def health(self) -> bool:
         """Check if the server is healthy."""
         try:
-            response = self.client.get(f"{self.base_url}/health")
+            response = await self.client.get(f"{self.base_url}/health")
             return response.status_code == 200
         except:
             return False
 
-    def __enter__(self):
+    async def __aenter__(self):
         """Context manager entry."""
         return self
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
+    async def __aexit__(self, exc_type, exc_val, exc_tb):
         """Context manager exit."""
-        self.close()
+        await self.close()
