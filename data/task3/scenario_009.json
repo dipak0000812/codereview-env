@@ -1,8 +1,7 @@
 {
   "scenario_id": "task3_009",
   "task": "task3",
-  "diff": "--- a/auth/serializers.py\n+++ b/auth/serializers.py\n@@ -1,5 +1,6 @@\n from rest_framework import serializers\n from auth.models import User\n+from typing import Dict, Any\n \n class UserSerializer(serializers.ModelSerializer):\n     class Meta:\n@@ -8,4 +9,9 @@\n         fields = ['id', 'username', 'email', 'is_active']\n \n class UserRegistrationSerializer(serializers.ModelSerializer):\n-    password = serializers.CharField(write_only=True)",
-+    password = serializers.CharField(write_only=True, min_length=8)\n+\n+    def validate_email(self, value):\n+        if User.objects.filter(email=value).exists():\n+            raise serializers.ValidationError('Email already in use')\n+        return value",
+  "diff": "--- a/auth/serializers.py\n+++ b/auth/serializers.py\n@@ -1,5 +1,6 @@\n from rest_framework import serializers\n from auth.models import User\n+from typing import Dict, Any\n \n class UserSerializer(serializers.ModelSerializer):\n     class Meta:\n@@ -8,4 +9,9 @@\n         fields = ['id', 'username', 'email', 'is_active']\n \n class UserRegistrationSerializer(serializers.ModelSerializer):\n-    password = serializers.CharField(write_only=True)\n+    password = serializers.CharField(write_only=True, min_length=8)\n+\n+    def validate_email(self, value):\n+        if User.objects.filter(email=value).exists():\n+            raise serializers.ValidationError('Email already in use')\n+        return value",
   "dependency_map": {
     "auth/serializers.py": ["auth/models.py"],
     "auth/models.py": ["db/connection.py"]

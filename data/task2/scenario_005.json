@@ -1,8 +1,7 @@
 {
   "scenario_id": "task2_005",
   "task": "task2",
-  "diff": "--- a/utils/helpers.py\n+++ b/utils/helpers.py\n@@ -1,4 +1,5 @@\n from typing import Dict, List\n+from collections import defaultdict\n \n def group_by(items: List[Dict], key: str) -> Dict:\n     result = {}\n@@ -7,3 +8,8 @@\n             result[item[key]].append(item)\n         else:\n             result[item[key]] = [item]\n-    return result",
-+    return result\n+\n+def flatten(nested_list: List[List]) -> List:\n+    return [item for sublist in nested_list for item in sublist]",
+  "diff": "--- a/utils/helpers.py\n+++ b/utils/helpers.py\n@@ -1,4 +1,5 @@\n from typing import Dict, List\n+from collections import defaultdict\n \n def group_by(items: List[Dict], key: str) -> Dict:\n     result = {}\n@@ -7,3 +8,8 @@\n             result[item[key]].append(item)\n         else:\n             result[item[key]] = [item]\n-    return result\n+    return result\n+\n+def flatten(nested_list: List[List]) -> List:\n+    return [item for sublist in nested_list for item in sublist]",
   "dependency_map": {
     "utils/helpers.py": []
   },

@@ -1,8 +1,7 @@
 {
   "scenario_id": "task1_003",
   "task": "task1",
-  "diff": "--- a/auth/views.py\n+++ b/auth/views.py\n@@ -45,7 +45,7 @@\n def reset_password(request, token):\n     if request.method == 'POST':\n         password = request.POST.get('password')\n-        # No password validation\n+        # Add password validation\n+        if len(password) < 8:\n+            return JsonResponse({'error': 'Password too short'}, status=400)\n         user = get_user_by_token(token)\n         if user:\n             user.set_password(password)\n@@ -52,6 +54,7 @@\n             user.save()\n             return JsonResponse({'success': True})\n         return JsonResponse({'error': 'Invalid token'}, status=400)\n-    return render(request, 'auth/reset.html')",
-+    return render(request, 'auth/reset.html', {'token': token})",
+  "diff": "--- a/auth/views.py\n+++ b/auth/views.py\n@@ -45,7 +45,7 @@\n def reset_password(request, token):\n     if request.method == 'POST':\n         password = request.POST.get('password')\n-        # No password validation\n+        # Add password validation\n+        if len(password) < 8:\n+            return JsonResponse({'error': 'Password too short'}, status=400)\n         user = get_user_by_token(token)\n         if user:\n             user.set_password(password)\n@@ -52,6 +54,7 @@\n             user.save()\n             return JsonResponse({'success': True})\n         return JsonResponse({'error': 'Invalid token'}, status=400)\n-    return render(request, 'auth/reset.html')\n+    return render(request, 'auth/reset.html', {'token': token})",
   "dependency_map": {
     "auth/views.py": ["auth/models.py", "core/middleware.py"],
     "auth/models.py": ["db/connection.py", "core/security.py"]
