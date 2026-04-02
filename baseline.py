@@ -228,6 +228,8 @@ def run_baseline_inference(
         print("Falling back to offline scoring...")
 
         # Offline fallback using dataset loader
+        from server.dataset import DatasetLoader
+        from server.graders import compute_reward
         dataset = DatasetLoader()
         agent = BaselineAgent(seed=42)
 
