@@ -138,29 +138,27 @@ curl http://localhost:7860/health
 
 ```
 codereview-env/
--- server/
-|   -- __init__.py
-|   -- app.py          # FastAPI application
-|   -- environment.py  # Stateless environment
-|   -- graders.py      # Pure grading functions
-|   -- dataset.py      # Scenario loader
-|   +-- sessions.py     # Episode store
--- data/
-|   -- task1/          # 10 risk classification scenarios
-|   -- task2/          # 10 blast radius scenarios
-|   +-- task3/          # 10 full review scenarios
--- tests/
-|   -- test_grader_variance.py
-|   +-- test_environment.py
--- models.py           # Pydantic types
--- client.py           # HTTP client
--- baseline.py         # Deterministic baseline agent
--- baseline_scores.json
--- openenv.yaml        # OpenEnv manifest
--- Dockerfile
--- requirements.txt
--- pyproject.toml
-+-- README.md
+├── app.py                 # FastAPI server
+├── environment.py         # Stateless environment
+├── graders.py             # Pure grading functions
+├── sessions.py            # Episode session store
+├── dataset.py             # JSON scenario loader
+├── models.py              # Pydantic types
+├── client.py              # Async HTTP client
+├── baseline.py            # Deterministic baseline agent
+├── inference.py           # Mandatory inference script
+├── baseline_scores.json   # Pre-computed baseline scores
+├── openenv.yaml           # OpenEnv manifest
+├── Dockerfile
+├── requirements.txt
+├── pyproject.toml
+├── data/
+│   ├── task1/             # 10 scenarios
+│   ├── task2/             # 10 scenarios
+│   └── task3/             # 10 scenarios
+└── tests/
+    ├── test_grader_variance.py
+    └── test_environment.py
 ```
 
 ## Team ZerothLayer
