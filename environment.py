@@ -5,7 +5,7 @@ from pathlib import Path
 from typing import Optional
 from uuid import uuid4
 
-sys.path.insert(0, str(Path(__file__).parent.parent))
+sys.path.insert(0, str(Path(__file__).parent))
 
 from openenv.core.env_server.interfaces import Environment
 from openenv.core.env_server.types import State
@@ -22,10 +22,10 @@ class CodeReviewEnvironment(Environment):
     SUPPORTS_CONCURRENT_SESSIONS = True
 
     def __init__(self):
-        self._state = State(episode_id="", step_count=0)
+        self._state = CodeReviewState(episode_id="", step_count=0, task="")
 
-    def reset(self, task: str = "task1", episode_id: Optional[str] = None, **kwargs) -> CodeReviewObservation:
-        """Reset environment and return observation."""
+    def reset(self, task: str = "task1", episode_id: Optional[str] = None, **kwargs) -> tuple:
+        """Reset environment and return observation and episode_id."""
         scenario = dataset.sample(task)
         
         # Synchronize with server-generated episode_id if provided
@@ -36,7 +36,7 @@ class CodeReviewEnvironment(Environment):
         session["max_steps"] = max_steps
         session["step_count"] = 0
 
-        self._state = State(episode_id=episode_id, step_count=0)
+        self._state = CodeReviewState(episode_id=episode_id, step_count=0, task=task)
 
         obs = CodeReviewObservation(
             episode_id=episode_id,
@@ -49,7 +49,7 @@ class CodeReviewEnvironment(Environment):
             reward=0.0,
             feedback=f"Step 1/{max_steps}: Analyze risk from diff only." if task == "task3" else "Analyze the diff and make your review decision.",
         )
-        return obs
+        return obs, episode_id
 
     def step(self, action: CodeReviewAction, **kwargs) -> CodeReviewObservation:
         episode_id = action.episode_id
