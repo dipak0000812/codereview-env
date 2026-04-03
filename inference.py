@@ -35,10 +35,13 @@ async def run_episode():
                 # Build prompt based on observation content
                 if TASK_NAME == "task3":
                     if not obs.dependency_map:
+                        # Step 1: only risk level needed
                         prompt = f"Diff:\n{obs.diff}\n\nOutput only the risk level (LOW/MEDIUM/HIGH/CRITICAL)."
                     elif not obs.file_history:
+                        # Step 2: only blast radius needed
                         prompt = f"Diff:\n{obs.diff}\n\nDependency map:\n{json.dumps(obs.dependency_map, indent=2)}\n\nOutput a JSON list of affected modules, e.g., [\"auth.py\"]."
                     else:
+                        # Step 3: full decision
                         prompt = f"Diff:\n{obs.diff}\n\nDependency map:\n{json.dumps(obs.dependency_map, indent=2)}\n\nFile history:\n{json.dumps(obs.file_history, indent=2)}\n\nAvailable reviewers: {obs.available_reviewers}\n\nOutput a JSON object with fields: recommended_reviewer (string) and merge_decision (APPROVE/BLOCK/REQUEST_CHANGES)."
                 elif TASK_NAME == "task1":
                     prompt = f"Diff:\n{obs.diff}\n\nOutput only the risk level (LOW/MEDIUM/HIGH/CRITICAL)."
@@ -56,10 +59,10 @@ async def run_episode():
 
                 result = await env.step(action)
                 rewards.append(result.reward)
-                action_str = json.dumps(action.dict())
+                action_str = json.dumps(action.model_dump())  # FIX: .model_dump() for Pydantic v2
                 print(f"[STEP] step={step} action={action_str} reward={result.reward:.2f} done={str(result.done).lower()} error=null", flush=True)
                 done = result.done
-                obs = result.observation
+                obs = result   # FIX: result IS the observation, not result.observation
                 step += 1
 
         except Exception as e:
