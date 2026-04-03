@@ -3,8 +3,14 @@
   "task": "task3",
   "diff": "--- a/core/cache.py\n+++ b/core/cache.py\n@@ -1,5 +1,6 @@\n import redis\n from functools import wraps\n+from typing import Callable, Any\n \n redis_client = redis.Redis(host='localhost', port=6379, db=0)\n \n@@ -8,6 +9,9 @@\n     ttl: int = 300\n ):\n     def decorator(func: Callable) -> Callable:\n+        @wraps(func)\n+        def wrapper(*args, **kwargs) -> Any:\n+            cache_key = f'cache:{func.__name__}:{str(args)}'",
   "dependency_map": {
-    "core/cache.py": ["api/views.py", "core/config.py"],
-    "api/views.py": ["auth/models.py", "core/permissions.py"]
+    "core/cache.py": [
+      "api/views.py",
+      "core/config.py"
+    ],
+    "api/views.py": [
+      "auth/models.py",
+      "core/permissions.py"
+    ]
   },
   "file_history": {
     "core/cache.py": {
@@ -13,12 +19,19 @@
       "test_coverage": 60
     }
   },
-  "available_reviewers": ["bob", "charlie"],
+  "available_reviewers": [
+    "bob",
+    "charlie"
+  ],
   "ground_truth": {
     "risk_level": "LOW",
-    "blast_radius": ["core/cache.py", "api/views.py", "auth/models.py", "core/permissions.py"],
+    "blast_radius": [
+      "core/cache.py",
+      "api/views.py",
+      "auth/models.py",
+      "core/permissions.py"
+    ],
     "recommended_reviewer": "charlie",
     "merge_decision": "APPROVE"
   }
 }
-

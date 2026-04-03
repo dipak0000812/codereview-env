@@ -3,8 +3,14 @@
   "task": "task2",
   "diff": "--- a/db/connection.py\n+++ b/db/connection.py\n@@ -5,6 +5,7 @@\n from sqlalchemy import create_engine\n from sqlalchemy.orm import sessionmaker, declarative_base\n+from contextlib import contextmanager\n \n Base = declarative_base()\n engine = create_engine(DATABASE_URL)\n@@ -15,3 +16,9 @@\ndef get_session():\n     Session = sessionmaker(bind=engine)\n     return Session()\n+\n+@contextmanager\n+def transaction():\n+    session = get_session()\n+    try:\n+        yield session\n+        session.commit()\n+    except:\n+        session.rollback()\n+        raise",
   "dependency_map": {
-    "db/connection.py": ["auth/models.py", "db/base.py"],
-    "auth/models.py": ["db/connection.py", "core/security.py"]
+    "db/connection.py": [
+      "auth/models.py",
+      "db/base.py"
+    ],
+    "auth/models.py": [
+      "db/connection.py",
+      "core/security.py"
+    ]
   },
   "file_history": {
     "db/connection.py": {
@@ -13,12 +19,18 @@
       "test_coverage": 80
     }
   },
-  "available_reviewers": ["alice", "charlie"],
+  "available_reviewers": [
+    "alice",
+    "charlie"
+  ],
   "ground_truth": {
     "risk_level": "MEDIUM",
-    "blast_radius": ["db/connection.py", "auth/models.py", "core/security.py"],
+    "blast_radius": [
+      "db/connection.py",
+      "auth/models.py",
+      "core/security.py"
+    ],
     "recommended_reviewer": "alice",
     "merge_decision": "REQUEST_CHANGES"
   }
 }
-

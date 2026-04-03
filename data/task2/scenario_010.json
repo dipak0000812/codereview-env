@@ -3,9 +3,16 @@
   "task": "task2",
   "diff": "--- a/db/migrations/003_add_products.py\n+++ b/db/migrations/003_add_products.py\n@@ -0,0 +1,25 @@\n+from sqlalchemy import Column, Integer, String, Float, ForeignKey\n+from db.base import Base\n+from auth.models import User\n+\n+class Product(Base):\n+    __tablename__ = 'products'\n+\n+    id = Column(Integer, primary_key=True)\n+    name = Column(String(100), nullable=False)\n+    price = Column(Float, nullable=False)\n+    seller_id = Column(Integer, ForeignKey('users.id'))\n+\n+class Order(Base):\n+    __tablename__ = 'orders'\n+\n+    id = Column(Integer, primary_key=True)\n+    product_id = Column(Integer, ForeignKey('products.id'))\n+    buyer_id = Column(Integer, ForeignKey('users.id'))\n+    quantity = Column(Integer, default=1)\n+    total = Column(Float)",
   "dependency_map": {
-    "db/migrations/003_add_products.py": ["db/base.py", "auth/models.py"],
-    "auth/models.py": ["db/connection.py"],
-    "db/base.py": ["db/connection.py"]
+    "db/migrations/003_add_products.py": [
+      "db/base.py",
+      "auth/models.py"
+    ],
+    "auth/models.py": [
+      "db/connection.py"
+    ],
+    "db/base.py": [
+      "db/connection.py"
+    ]
   },
   "file_history": {
     "db/migrations/003_add_products.py": {
@@ -14,12 +21,20 @@
       "test_coverage": 50
     }
   },
-  "available_reviewers": ["alice", "bob", "david"],
+  "available_reviewers": [
+    "alice",
+    "bob",
+    "david"
+  ],
   "ground_truth": {
     "risk_level": "MEDIUM",
-    "blast_radius": ["db/migrations/003_add_products.py", "db/base.py", "auth/models.py", "db/connection.py"],
+    "blast_radius": [
+      "db/migrations/003_add_products.py",
+      "db/base.py",
+      "auth/models.py",
+      "db/connection.py"
+    ],
     "recommended_reviewer": "alice",
     "merge_decision": "REQUEST_CHANGES"
   }
 }
-

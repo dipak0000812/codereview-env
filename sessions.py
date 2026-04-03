@@ -1,7 +1,7 @@
 """Episode session store - stateless session management.
 
 CRITICAL: This module holds a global dictionary _sessions keyed by episode_id (UUID).
-The environment object NEVER holds episode state — only reads/writes to this store.
+The environment object NEVER holds episode state  only reads/writes to this store.
 This ensures concurrent requests never contaminate each other's episodes.
 """
 

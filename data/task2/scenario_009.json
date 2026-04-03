@@ -3,8 +3,12 @@
   "task": "task2",
   "diff": "--- a/auth/forms.py\n+++ b/auth/forms.py\n@@ -1,5 +1,6 @@\n from django import forms\n from auth.models import User\n+from typing import Dict\n \n class LoginForm(forms.Form):\n     username = forms.CharField(max_length=50)\n@@ -7,4 +8,8 @@\n \n class RegisterForm(forms.Form):\n     username = forms.CharField(max_length=50)\n-    email = forms.EmailField()\n+    email = forms.EmailField()\n+\n+    def clean_email(self):\n+        email = self.cleaned_data.get('email')\n+        if User.objects.filter(email=email).exists():\n+            raise forms.ValidationError('Email already registered')",
   "dependency_map": {
-    "auth/forms.py": ["auth/models.py"],
-    "auth/models.py": ["db/connection.py"]
+    "auth/forms.py": [
+      "auth/models.py"
+    ],
+    "auth/models.py": [
+      "db/connection.py"
+    ]
   },
   "file_history": {
     "auth/forms.py": {
@@ -13,10 +17,17 @@
       "test_coverage": 80
     }
   },
-  "available_reviewers": ["bob", "charlie"],
+  "available_reviewers": [
+    "bob",
+    "charlie"
+  ],
   "ground_truth": {
     "risk_level": "LOW",
-    "blast_radius": ["auth/forms.py", "auth/models.py", "db/connection.py"],
+    "blast_radius": [
+      "auth/forms.py",
+      "auth/models.py",
+      "db/connection.py"
+    ],
     "recommended_reviewer": "charlie",
     "merge_decision": "APPROVE"
   }

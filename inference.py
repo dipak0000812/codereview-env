@@ -14,7 +14,7 @@ ENV_URL = os.getenv("ENV_URL", "http://localhost:7860")
 MAX_STEPS = 10  # safety
 
 def build_prompt(obs):
-    # Customize per task and step – simple version
+    # Customize per task and step  simple version
     if obs.task == "task3":
         if obs.dependency_map and not obs.file_history:
             return f"Diff:\n{obs.diff}\n\nDependency map:\n{json.dumps(obs.dependency_map, indent=2)}\n\nOutput affected modules as JSON list."

@@ -3,9 +3,18 @@
   "task": "task3",
   "diff": "--- a/auth/views.py\n+++ b/auth/views.py\n@@ -15,10 +15,15 @@\n def login(request):\n     username = request.POST.get('username')\n     password = request.POST.get('password')\n+    # SECURITY: Added rate limiting\n+    if not check_rate_limit(request, 'login', limit=5, window=60):\n+        return JsonResponse({'error': 'Too many attempts'}, status=429)\n+    # SECURITY: Added parameter binding to prevent SQL injection\n     user = authenticate(username, password)\n     if user:\n+        login(request, user)\n+        return JsonResponse({'success': True, 'redirect': '/dashboard'})\n-        return redirect('/dashboard')\n     return render(request, 'auth/login.html', {'error': 'Invalid credentials'})",
   "dependency_map": {
-    "auth/views.py": ["auth/models.py", "core/middleware.py", "core/security.py"],
-    "auth/models.py": ["db/connection.py", "core/security.py"],
-    "core/middleware.py": ["api/router.py"]
+    "auth/views.py": [
+      "auth/models.py",
+      "core/middleware.py",
+      "core/security.py"
+    ],
+    "auth/models.py": [
+      "db/connection.py",
+      "core/security.py"
+    ],
+    "core/middleware.py": [
+      "api/router.py"
+    ]
   },
   "file_history": {
     "auth/views.py": {
@@ -14,12 +23,23 @@
       "test_coverage": 45
     }
   },
-  "available_reviewers": ["alice", "bob", "charlie", "david"],
+  "available_reviewers": [
+    "alice",
+    "bob",
+    "charlie",
+    "david"
+  ],
   "ground_truth": {
     "risk_level": "CRITICAL",
-    "blast_radius": ["auth/views.py", "auth/models.py", "core/security.py", "db/connection.py", "core/middleware.py", "api/router.py"],
+    "blast_radius": [
+      "auth/views.py",
+      "auth/models.py",
+      "core/security.py",
+      "db/connection.py",
+      "core/middleware.py",
+      "api/router.py"
+    ],
     "recommended_reviewer": "alice",
     "merge_decision": "BLOCK"
   }
 }
-

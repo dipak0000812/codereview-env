@@ -12,12 +12,17 @@
       "test_coverage": 70
     }
   },
-  "available_reviewers": ["alice", "charlie", "david"],
+  "available_reviewers": [
+    "alice",
+    "charlie",
+    "david"
+  ],
   "ground_truth": {
     "risk_level": "HIGH",
-    "blast_radius": ["core/config.py"],
+    "blast_radius": [
+      "core/config.py"
+    ],
     "recommended_reviewer": "alice",
     "merge_decision": "BLOCK"
   }
 }
-

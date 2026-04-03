@@ -12,10 +12,15 @@
       "test_coverage": 90
     }
   },
-  "available_reviewers": ["bob", "charlie"],
+  "available_reviewers": [
+    "bob",
+    "charlie"
+  ],
   "ground_truth": {
     "risk_level": "LOW",
-    "blast_radius": ["utils/helpers.py"],
+    "blast_radius": [
+      "utils/helpers.py"
+    ],
     "recommended_reviewer": "bob",
     "merge_decision": "APPROVE"
   }

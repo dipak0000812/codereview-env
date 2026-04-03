@@ -3,7 +3,11 @@
   "task": "task1",
   "diff": "--- a/api/views.py\n+++ b/api/views.py\n@@ -22,7 +22,7 @@\n @api_view(['POST'])\n def create_user(request):\n     data = request.data\n-    user = User.objects.create_user(\n+    user = User.objects.create_user(\n         username=data.get('username'),\n         email=data.get('email'),\n         password=data.get('password')\n@@ -30,6 +30,8 @@\n     return Response({'id': user.id, 'username': user.username})\n \n def get_user(request, user_id):\n+    # SECURITY FIX: Removed public access\n+    # Only admins can access user data\n     if not request.user.is_authenticated:\n         return Response({'error': 'Unauthorized'}, status=401)\n     if not request.user.is_staff and request.user.id != user_id:\n@@ -37,4 +39,4 @@\n     user = get_object_or_404(User, id=user_id)\n     return Response({'id': user.id, 'username': user.username})",
   "dependency_map": {
-    "api/views.py": ["auth/models.py", "core/permissions.py", "rest_framework.decorators"]
+    "api/views.py": [
+      "auth/models.py",
+      "core/permissions.py",
+      "rest_framework.decorators"
+    ]
   },
   "file_history": {
     "api/views.py": {
@@ -12,7 +16,11 @@
       "test_coverage": 65
     }
   },
-  "available_reviewers": ["alice", "charlie", "david"],
+  "available_reviewers": [
+    "alice",
+    "charlie",
+    "david"
+  ],
   "ground_truth": {
     "risk_level": "HIGH",
     "blast_radius": [],
@@ -20,4 +28,3 @@
     "merge_decision": "REQUEST_CHANGES"
   }
 }
-

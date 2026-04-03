@@ -3,8 +3,14 @@
   "task": "task1",
   "diff": "--- a/api/routes.py\n+++ b/api/routes.py\n@@ -10,6 +10,8 @@\n from rest_framework.decorators import api_view\n from rest_framework.response import Response\n \n+from core.middleware import RateLimitMiddleware\n+\n @api_view(['GET'])\n def health(request):\n     return Response({'status': 'healthy'})",
   "dependency_map": {
-    "api/routes.py": ["core/middleware.py", "rest_framework.decorators"],
-    "core/middleware.py": ["api/router.py", "core/config.py"]
+    "api/routes.py": [
+      "core/middleware.py",
+      "rest_framework.decorators"
+    ],
+    "core/middleware.py": [
+      "api/router.py",
+      "core/config.py"
+    ]
   },
   "file_history": {
     "api/routes.py": {
@@ -13,7 +19,10 @@
       "test_coverage": 80
     }
   },
-  "available_reviewers": ["bob", "charlie"],
+  "available_reviewers": [
+    "bob",
+    "charlie"
+  ],
   "ground_truth": {
     "risk_level": "LOW",
     "blast_radius": [],
@@ -21,4 +30,3 @@
     "merge_decision": "APPROVE"
   }
 }
-

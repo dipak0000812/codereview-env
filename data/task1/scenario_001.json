@@ -3,8 +3,13 @@
   "task": "task1",
   "diff": "--- a/auth/views.py\n+++ b/auth/views.py\n@@ -15,7 +15,7 @@\n def login(request):\n     username = request.POST.get('username')\n     password = request.POST.get('password')\n-    user = authenticate(username, password)\n+    user = authenticate(username, password, request=request)\n     if user:\n         return redirect('/dashboard')\n     return render(request, 'auth/login.html', {'error': 'Invalid credentials'})",
   "dependency_map": {
-    "auth/views.py": ["auth/models.py", "core/middleware.py"],
-    "auth/models.py": ["db/connection.py"]
+    "auth/views.py": [
+      "auth/models.py",
+      "core/middleware.py"
+    ],
+    "auth/models.py": [
+      "db/connection.py"
+    ]
   },
   "file_history": {
     "auth/views.py": {
@@ -13,7 +18,11 @@
       "test_coverage": 85
     }
   },
-  "available_reviewers": ["alice", "bob", "charlie"],
+  "available_reviewers": [
+    "alice",
+    "bob",
+    "charlie"
+  ],
   "ground_truth": {
     "risk_level": "MEDIUM",
     "blast_radius": [],
@@ -21,4 +30,3 @@
     "merge_decision": "REQUEST_CHANGES"
   }
 }
-

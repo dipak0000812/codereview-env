@@ -20,7 +20,7 @@ from typing import List
 # Add project root to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-# Import REAL graders — not local copies
+# Import REAL graders  not local copies
 from server.graders import (
     compute_reward,
     risk_score,
@@ -30,7 +30,7 @@ from server.graders import (
 )
 
 
-# ── Mock action for testing (avoids OpenEnv model overhead) ──────────────────
+#  Mock action for testing (avoids OpenEnv model overhead) 
 
 @dataclass
 class MockAction:
@@ -46,7 +46,7 @@ class MockAction:
             self.affected_modules = []
 
 
-# ── Ground truth fixtures ─────────────────────────────────────────────────────
+#  Ground truth fixtures 
 
 @pytest.fixture
 def task1_ground_truth():
@@ -78,7 +78,7 @@ def task3_ground_truth():
     }
 
 
-# ── Test classes ──────────────────────────────────────────────────────────────
+#  Test classes 
 
 class TestRandomAgentScoresLow:
     """Random agent should score in expected low range.
@@ -94,7 +94,7 @@ class TestRandomAgentScoresLow:
             scores.append(score)
 
         avg = sum(scores) / len(scores)
-        # With 4 levels uniform random: ~25% exact(1.0) + 50% ±1(0.5) + 25% ±2+(0.0-0.2)
+        # With 4 levels uniform random: ~25% exact(1.0) + 50% 1(0.5) + 25% 2+(0.0-0.2)
         assert 0.30 <= avg <= 0.70, f"Random task1 avg={avg:.3f} out of range"
 
     def test_random_agent_task2(self, task2_ground_truth):
@@ -166,13 +166,13 @@ class TestPartialAgentScoresMiddle:
     """Partial correctness should give partial credit."""
 
     def test_one_level_off_task1(self, task1_ground_truth):
-        # Ground truth is HIGH — MEDIUM is one off
+        # Ground truth is HIGH  MEDIUM is one off
         action = MockAction(risk_level="MEDIUM")
         score = compute_reward(action, task1_ground_truth, "task1")
         assert 0.45 <= score <= 0.55, f"One-off task1 score={score:.3f}"
 
     def test_partial_blast_radius_task2(self, task2_ground_truth):
-        # Ground truth has 3 modules — predict 2 of them
+        # Ground truth has 3 modules  predict 2 of them
         action = MockAction(
             affected_modules=["auth/models.py", "core/middleware.py"]
         )
@@ -190,7 +190,7 @@ class TestPartialAgentScoresMiddle:
         )
         score = compute_reward(action, task3_ground_truth, "task3")
         # risk=0.25*1.0 + blast=0.30*1.0 + reviewer=0 + merge=0 = 0.55
-        # But merge=APPROVE on CRITICAL = penalty → merge_score = max(0, 0-0.5)=0
+        # But merge=APPROVE on CRITICAL = penalty  merge_score = max(0, 0-0.5)=0
         assert 0.40 <= score <= 0.70, f"Partial task3 score={score:.3f}"
 
 
@@ -200,7 +200,7 @@ class TestGraderNeverCrashes:
     @pytest.mark.parametrize("risk", ["LOW", "MEDIUM", "HIGH", "CRITICAL", "INVALID", "", None])
     def test_risk_score_never_crashes(self, risk, task1_ground_truth):
         if risk is None:
-            return  # Skip None — Pydantic would reject before grader
+            return  # Skip None  Pydantic would reject before grader
         action = MockAction(risk_level=risk)
         score = compute_reward(action, task1_ground_truth, "task1")
         assert isinstance(score, float)

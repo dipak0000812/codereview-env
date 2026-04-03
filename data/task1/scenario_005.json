@@ -3,7 +3,9 @@
   "task": "task1",
   "diff": "--- a/core/config.py\n+++ b/core/config.py\n@@ -1,5 +1,6 @@\n import os\n+import yaml\n \n DATABASE_URL = os.getenv('DATABASE_URL', 'sqlite:///db.sqlite3')\n DEBUG = os.getenv('DEBUG', 'False').lower() == 'true'\n SECRET_KEY = os.getenv('SECRET_KEY', 'insecure-default-key')",
   "dependency_map": {
-    "core/config.py": ["os"]
+    "core/config.py": [
+      "os"
+    ]
   },
   "file_history": {
     "core/config.py": {
@@ -12,7 +14,10 @@
       "test_coverage": 70
     }
   },
-  "available_reviewers": ["alice", "bob"],
+  "available_reviewers": [
+    "alice",
+    "bob"
+  ],
   "ground_truth": {
     "risk_level": "HIGH",
     "blast_radius": [],
@@ -20,4 +25,3 @@
     "merge_decision": "BLOCK"
   }
 }
-

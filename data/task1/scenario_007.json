@@ -3,7 +3,10 @@
   "task": "task1",
   "diff": "--- a/tests/test_auth.py\n+++ b/tests/test_auth.py\n@@ -15,6 +15,12 @@\n def test_login_success():\n     response = client.post('/api/auth/login', json={'username': 'test', 'password': 'test'})\n     assert response.status_code == 200\n+\n+def test_login_invalid_credentials():\n+    response = client.post('/api/auth/login', json={'username': 'test', 'password': 'wrong'})\n+    assert response.status_code == 401\n+\n+def test_login_missing_fields():\n+    response = client.post('/api/auth/login', json={})\n+    assert response.status_code == 400",
   "dependency_map": {
-    "tests/test_auth.py": ["auth/views.py", "pytest"]
+    "tests/test_auth.py": [
+      "auth/views.py",
+      "pytest"
+    ]
   },
   "file_history": {
     "tests/test_auth.py": {
@@ -12,7 +15,10 @@
       "test_coverage": 75
     }
   },
-  "available_reviewers": ["alice", "bob"],
+  "available_reviewers": [
+    "alice",
+    "bob"
+  ],
   "ground_truth": {
     "risk_level": "CRITICAL",
     "blast_radius": [],
@@ -20,4 +26,3 @@
     "merge_decision": "APPROVE"
   }
 }
-

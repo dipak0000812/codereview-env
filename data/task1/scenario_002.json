@@ -3,7 +3,9 @@
   "task": "task1",
   "diff": "--- a/utils/format.py\n+++ b/utils/format.py\n@@ -2,6 +2,7 @@\n \n def format_date(dt, fmt='%Y-%m-%d'):\n     if isinstance(dt, datetime):\n+        return dt.strftime(fmt)\n         return dt.isoformat()\n     return str(dt)",
   "dependency_map": {
-    "utils/format.py": ["datetime"]
+    "utils/format.py": [
+      "datetime"
+    ]
   },
   "file_history": {
     "utils/format.py": {
@@ -12,7 +14,10 @@
       "test_coverage": 90
     }
   },
-  "available_reviewers": ["alice", "bob"],
+  "available_reviewers": [
+    "alice",
+    "bob"
+  ],
   "ground_truth": {
     "risk_level": "LOW",
     "blast_radius": [],
@@ -20,4 +25,3 @@
     "merge_decision": "APPROVE"
   }
 }
-

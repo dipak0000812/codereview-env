@@ -3,7 +3,10 @@
   "task": "task1",
   "diff": "--- a/db/migrations/002_add_users.py\n+++ b/db/migrations/002_add_users.py\n@@ -0,0 +1,20 @@\n+from sqlalchemy import Column, Integer, String, DateTime\n+from db.base import Base\n+\n+class User(Base):\n+    __tablename__ = 'users'\n+\n+    id = Column(Integer, primary_key=True)\n+    username = Column(String(50), unique=True, nullable=False)\n+    email = Column(String(100), unique=True, nullable=False)\n+    password_hash = Column(String(255), nullable=False)\n+    created_at = Column(DateTime, default=datetime.now)\n+    updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now)",
   "dependency_map": {
-    "db/migrations/002_add_users.py": ["db/base.py", "sqlalchemy"]
+    "db/migrations/002_add_users.py": [
+      "db/base.py",
+      "sqlalchemy"
+    ]
   },
   "file_history": {
     "db/migrations/002_add_users.py": {
@@ -12,7 +15,11 @@
       "test_coverage": 60
     }
   },
-  "available_reviewers": ["bob", "charlie", "david"],
+  "available_reviewers": [
+    "bob",
+    "charlie",
+    "david"
+  ],
   "ground_truth": {
     "risk_level": "MEDIUM",
     "blast_radius": [],
@@ -20,4 +27,3 @@
     "merge_decision": "REQUEST_CHANGES"
   }
 }
-

@@ -3,8 +3,13 @@
   "task": "task2",
   "diff": "--- a/core/security.py\n+++ b/core/security.py\n@@ -8,6 +8,7 @@\n import hashlib\n import secrets\n from functools import wraps\n+from typing import Optional\n \n def hash_password(password: str) -> str:\n     return hashlib.pbkdf2_hmac('sha256', password.encode(), b'salt', 100000)",
   "dependency_map": {
-    "core/security.py": ["auth/models.py", "db/connection.py"],
-    "auth/models.py": ["db/connection.py"],
+    "core/security.py": [
+      "auth/models.py",
+      "db/connection.py"
+    ],
+    "auth/models.py": [
+      "db/connection.py"
+    ],
     "db/connection.py": []
   },
   "file_history": {
@@ -14,12 +19,18 @@
       "test_coverage": 85
     }
   },
-  "available_reviewers": ["bob", "charlie"],
+  "available_reviewers": [
+    "bob",
+    "charlie"
+  ],
   "ground_truth": {
     "risk_level": "LOW",
-    "blast_radius": ["core/security.py", "auth/models.py", "db/connection.py"],
+    "blast_radius": [
+      "core/security.py",
+      "auth/models.py",
+      "db/connection.py"
+    ],
     "recommended_reviewer": "charlie",
     "merge_decision": "APPROVE"
   }
 }
-

@@ -3,9 +3,19 @@
   "task": "task2",
   "diff": "--- a/core/middleware.py\n+++ b/core/middleware.py\n@@ -10,6 +10,7 @@\n class RateLimitMiddleware:\n     def __init__(self, get_response):\n         self.get_response = get_response\n+        self.request_counts = {}\n \n     def __call__(self, request):\n         ip = request.META.get('REMOTE_ADDR')\n@@ -17,6 +18,9 @@\n         if not self.is_allowed(ip):\n             return JsonResponse({'error': 'Rate limit exceeded'}, status=429)\n         self.track_request(ip)\n+        # Add request ID for tracing\n+        request.id = str(uuid.uuid4())\n+        response = self.get_response(request)\n         return response",
   "dependency_map": {
-    "core/middleware.py": ["api/router.py", "core/config.py", "db/connection.py"],
-    "api/router.py": ["api/views.py", "core/permissions.py"],
-    "api/views.py": ["auth/models.py", "core/permissions.py"]
+    "core/middleware.py": [
+      "api/router.py",
+      "core/config.py",
+      "db/connection.py"
+    ],
+    "api/router.py": [
+      "api/views.py",
+      "core/permissions.py"
+    ],
+    "api/views.py": [
+      "auth/models.py",
+      "core/permissions.py"
+    ]
   },
   "file_history": {
     "core/middleware.py": {
@@ -14,12 +24,20 @@
       "test_coverage": 70
     }
   },
-  "available_reviewers": ["alice", "bob"],
+  "available_reviewers": [
+    "alice",
+    "bob"
+  ],
   "ground_truth": {
     "risk_level": "MEDIUM",
-    "blast_radius": ["core/middleware.py", "api/router.py", "api/views.py", "auth/models.py", "core/permissions.py"],
+    "blast_radius": [
+      "core/middleware.py",
+      "api/router.py",
+      "api/views.py",
+      "auth/models.py",
+      "core/permissions.py"
+    ],
     "recommended_reviewer": "bob",
     "merge_decision": "APPROVE"
   }
 }
-

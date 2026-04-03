@@ -3,9 +3,17 @@
   "task": "task3",
   "diff": "--- a/api/views.py\n+++ b/api/views.py\n@@ -1,5 +1,6 @@\n from rest_framework.views import APIView\n from rest_framework.response import Response\n+from rest_framework.permissions import IsAuthenticated, IsAdminUser\n \n class UserView(APIView):\n     permission_classes = [IsAuthenticated]\n@@ -10,6 +11,9 @@\n         serializer = UserSerializer(user)\n         return Response(serializer.data)\n \n+    def put(self, request, user_id):\n+        if request.user.id != user_id and not request.user.is_admin:\n+            return Response({'error': 'Forbidden'}, status=403)",
   "dependency_map": {
-    "api/views.py": ["auth/models.py", "core/permissions.py", "core/middleware.py"],
-    "core/permissions.py": ["auth/models.py"],
-    "core/middleware.py": ["api/router.py"]
+    "api/views.py": [
+      "auth/models.py",
+      "core/permissions.py",
+      "core/middleware.py"
+    ],
+    "core/permissions.py": [
+      "auth/models.py"
+    ],
+    "core/middleware.py": [
+      "api/router.py"
+    ]
   },
   "file_history": {
     "api/views.py": {
@@ -14,12 +22,19 @@
       "test_coverage": 60
     }
   },
-  "available_reviewers": ["alice", "bob", "charlie"],
+  "available_reviewers": [
+    "alice",
+    "bob",
+    "charlie"
+  ],
   "ground_truth": {
     "risk_level": "HIGH",
-    "blast_radius": ["api/views.py", "auth/models.py", "core/permissions.py"],
+    "blast_radius": [
+      "api/views.py",
+      "auth/models.py",
+      "core/permissions.py"
+    ],
     "recommended_reviewer": "bob",
     "merge_decision": "REQUEST_CHANGES"
   }
 }
-

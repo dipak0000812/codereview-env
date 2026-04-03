@@ -3,9 +3,16 @@
   "task": "task3",
   "diff": "--- a/db/migrations/004_add_payments.py\n+++ b/db/migrations/004_add_payments.py\n@@ -0,0 +1,18 @@\n+from sqlalchemy import Column, Integer, String, Float, ForeignKey, DateTime\n+from db.base import Base\n+\n+class Payment(Base):\n+    __tablename__ = 'payments'\n+\n+    id = Column(Integer, primary_key=True)\n+    order_id = Column(Integer, ForeignKey('orders.id'))\n+    amount = Column(Float, nullable=False)\n+    status = Column(String(20), default='pending')\n+    payment_method = Column(String(50))\n+    transaction_id = Column(String(100), unique=True)\n+    created_at = Column(DateTime, default=datetime.now)",
   "dependency_map": {
-    "db/migrations/004_add_payments.py": ["db/base.py", "auth/models.py"],
-    "db/base.py": ["db/connection.py"],
-    "auth/models.py": ["db/connection.py"]
+    "db/migrations/004_add_payments.py": [
+      "db/base.py",
+      "auth/models.py"
+    ],
+    "db/base.py": [
+      "db/connection.py"
+    ],
+    "auth/models.py": [
+      "db/connection.py"
+    ]
   },
   "file_history": {
     "db/migrations/004_add_payments.py": {
@@ -14,12 +21,20 @@
       "test_coverage": 40
     }
   },
-  "available_reviewers": ["alice", "bob", "charlie"],
+  "available_reviewers": [
+    "alice",
+    "bob",
+    "charlie"
+  ],
   "ground_truth": {
     "risk_level": "HIGH",
-    "blast_radius": ["db/migrations/004_add_payments.py", "db/base.py", "auth/models.py", "db/connection.py"],
+    "blast_radius": [
+      "db/migrations/004_add_payments.py",
+      "db/base.py",
+      "auth/models.py",
+      "db/connection.py"
+    ],
     "recommended_reviewer": "alice",
     "merge_decision": "REQUEST_CHANGES"
   }
 }
-

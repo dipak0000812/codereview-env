@@ -3,7 +3,10 @@
   "task": "task1",
   "diff": "--- a/core/email.py\n+++ b/core/email.py\n@@ -1,6 +1,7 @@\n import smtplib\n from email.mime.text import MIMEText\n from email.mime.multipart import MIMEMultipart\n+from typing import List\n \n def send_email(to: List[str], subject: str, body: str):\n     msg = MIMEMultipart()",
   "dependency_map": {
-    "core/email.py": ["smtplib", "email.mime.text"]
+    "core/email.py": [
+      "smtplib",
+      "email.mime.text"
+    ]
   },
   "file_history": {
     "core/email.py": {
@@ -12,7 +15,10 @@
       "test_coverage": 50
     }
   },
-  "available_reviewers": ["bob", "charlie"],
+  "available_reviewers": [
+    "bob",
+    "charlie"
+  ],
   "ground_truth": {
     "risk_level": "HIGH",
     "blast_radius": [],
@@ -20,4 +26,3 @@
     "merge_decision": "APPROVE"
   }
 }
-

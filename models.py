@@ -6,7 +6,7 @@ from openenv.core import Action, Observation, State
 
 
 class CodeReviewAction(Action):
-    episode_id: str = Field(..., description="Mandatory — session lookup key")
+    episode_id: str = Field(..., description="Mandatory  session lookup key")
     risk_level: str = Field(..., description="LOW / MEDIUM / HIGH / CRITICAL")
     affected_modules: List[str] = Field(default_factory=list)
     recommended_reviewer: str = Field(default="")

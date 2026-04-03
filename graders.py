@@ -26,7 +26,7 @@ def risk_score(predicted: str, truth: str) -> float:
         truth: Ground truth risk level
 
     Returns:
-        1.0 if exact match, 0.5 if ±1 level, 0.2 if ±2 levels, 0.0 otherwise
+        1.0 if exact match, 0.5 if 1 level, 0.2 if 2 levels, 0.0 otherwise
     """
     if predicted not in RISK_LEVELS or truth not in RISK_LEVELS:
         return 0.0
@@ -43,7 +43,7 @@ def jaccard_score(predicted: List[str], truth: List[str]) -> float:
         truth: Ground truth blast radius
 
     Returns:
-        |predicted ∩ truth| / |predicted ∪ truth|
+        |predicted  truth| / |predicted  truth|
     """
     a, b = set(predicted), set(truth)
 
