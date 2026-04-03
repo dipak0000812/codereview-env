@@ -9,7 +9,7 @@ tags:
   - developer-tools
   - software-engineering
   - risk-assessment
-entrypoint: server.app:app
+entrypoint: app:app
 tasks:
   - name: task1
     description: Classify risk level from code diff

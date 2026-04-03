@@ -14,7 +14,7 @@
   },
   "available_reviewers": ["alice", "bob"],
   "ground_truth": {
-    "risk_level": "LOW",
+    "risk_level": "CRITICAL",
     "blast_radius": [],
     "recommended_reviewer": "bob",
     "merge_decision": "APPROVE"

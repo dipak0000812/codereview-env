@@ -21,7 +21,7 @@ pip install -r requirements.txt
 ### Run the Server
 
 ```bash
-uvicorn server.app:app --host 0.0.0.0 --port 7860
+uvicorn app:app --host 0.0.0.0 --port 7860
 ```
 
 ### Run Baseline Agent
@@ -120,9 +120,9 @@ The environment is **stateless**. All episode state lives in `sessions.py` keyed
 
 | Task | Baseline Score | Description |
 |------|----------------|-------------|
-| task1 | 0.18 | Random risk classification |
-| task2 | 0.12 | Random module selection |
-| task3 | 0.09 | Random full decision |
+| task1 | 0.394 | Naive risk classification (Always LOW) |
+| task2 | 0.000 | Naive module selection (Always empty) |
+| task3 | 0.283 | Naive sequential full decision (3 steps, weighted) |
 
 A trained agent should significantly outperform these baselines.
 

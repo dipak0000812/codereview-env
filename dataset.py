@@ -48,7 +48,7 @@ class DatasetLoader:
         """
         if data_dir is None:
             # Use pathlib to find data dir relative to this file
-            self.data_dir = Path(__file__).parent.parent / 'data'
+            self.data_dir = Path(__file__).parent / 'data'
         else:
             self.data_dir = Path(data_dir)
 

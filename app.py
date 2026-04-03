@@ -5,18 +5,20 @@ from pathlib import Path
 from typing import Dict, Any
 
 from fastapi import HTTPException
-from openenv.core import create_fastapi_app
+from fastapi import HTTPException
+from openenv.core.env_server.http_server import create_app
 
 from models import CodeReviewAction, CodeReviewObservation
-from server.environment import CodeReviewEnvironment
-from server.dataset import DatasetLoader
-from server.graders import compute_reward, build_feedback
+from environment import CodeReviewEnvironment
+from dataset import DatasetLoader
+from graders import compute_reward, build_feedback
 
-env = CodeReviewEnvironment()
-app = create_fastapi_app(
-    env=lambda: env,
+app = create_app(
+    env=CodeReviewEnvironment,
     action_cls=CodeReviewAction,
-    observation_cls=CodeReviewObservation
+    observation_cls=CodeReviewObservation,
+    env_name="codereview-env",
+    max_concurrent_envs=100,
 )
 
 
