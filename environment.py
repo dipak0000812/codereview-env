@@ -24,8 +24,8 @@ class CodeReviewEnvironment(Environment):
     def __init__(self):
         self._state = CodeReviewState(episode_id="", step_count=0, task="")
 
-    def reset(self, task: str = "task1", episode_id: Optional[str] = None, **kwargs) -> tuple:
-        """Reset environment and return observation and episode_id."""
+    def reset(self, task: str = "task1", episode_id: Optional[str] = None, **kwargs) -> CodeReviewObservation:
+        """Reset environment and return observation."""
         scenario = dataset.sample(task)
         
         # Synchronize with server-generated episode_id if provided
@@ -49,7 +49,7 @@ class CodeReviewEnvironment(Environment):
             reward=0.0,
             feedback=f"Analyze the diff. Step 1/{max_steps}" if task == "task3" else "Analyze the diff."
         )
-        return obs, episode_id
+        return obs
 
     def step(self, action: CodeReviewAction, **kwargs) -> CodeReviewObservation:
         episode_id = action.episode_id
