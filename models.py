@@ -21,7 +21,11 @@ class CodeReviewObservation(Observation):
     file_history: Dict[str, Any] = Field(default_factory=dict)
     available_reviewers: List[str] = Field(default_factory=list)
     feedback: str = Field(default="")
+    done: bool = Field(default=False)
+    reward: float = Field(default=0.0)
 
 
 class CodeReviewState(State):
+    episode_id: str = Field(default="")
+    step_count: int = Field(default=0)
     task: str = Field(default="")

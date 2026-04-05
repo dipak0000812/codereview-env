@@ -42,12 +42,12 @@ class CodeReviewEnvironment(Environment):
             episode_id=episode_id,
             task=task,
             diff=scenario["diff"],
-            dependency_map={} if task == "task3" else scenario["dependency_map"],
-            file_history={} if task == "task3" else scenario.get("file_history", {}),
-            available_reviewers=[] if task == "task3" else scenario["available_reviewers"],
+            dependency_map=scenario["dependency_map"],
+            file_history=scenario.get("file_history", {}),
+            available_reviewers=scenario["available_reviewers"],
             done=False,
             reward=0.0,
-            feedback=f"Step 1/{max_steps}: Analyze risk from diff only." if task == "task3" else "Analyze the diff and make your review decision.",
+            feedback=f"Analyze the diff. Step 1/{max_steps}" if task == "task3" else "Analyze the diff."
         )
         return obs, episode_id
 
@@ -99,12 +99,13 @@ class CodeReviewEnvironment(Environment):
                 )
                 close_session(episode_id)
             session["step_count"] += 1
+            self._state = CodeReviewState(episode_id=episode_id, step_count=session["step_count"], task=task)
             return next_obs
         else:
             reward = compute_reward(action, gt, task)
             feedback = build_feedback(action, gt, task)
             close_session(episode_id)
-            self._state = State(episode_id=episode_id, step_count=1)
+            self._state = CodeReviewState(episode_id=episode_id, step_count=1, task=task)
             return CodeReviewObservation(
                 episode_id=episode_id,
                 task=task,
