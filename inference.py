@@ -34,10 +34,10 @@ async def run_episode():
             while not done and step <= MAX_STEPS:
                 # Build prompt based on observation content
                 if TASK_NAME == "task3":
-                    if not obs.dependency_map:
+                    if step == 1:
                         # Step 1: only risk level needed
                         prompt = f"Diff:\n{obs.diff}\n\nOutput only the risk level (LOW/MEDIUM/HIGH/CRITICAL)."
-                    elif not obs.file_history:
+                    elif step == 2:
                         # Step 2: only blast radius needed
                         prompt = f"Diff:\n{obs.diff}\n\nDependency map:\n{json.dumps(obs.dependency_map, indent=2)}\n\nOutput a JSON list of affected modules, e.g., [\"auth.py\"]."
                     else:
@@ -55,7 +55,7 @@ async def run_episode():
                     max_tokens=200
                 )
                 llm_output = response.choices[0].message.content.strip()
-                action = parse_action(llm_output, TASK_NAME, episode_id, obs)
+                action = parse_action(llm_output, TASK_NAME, episode_id, obs, step)
 
                 result = await env.step(action)
                 rewards.append(result.reward)
@@ -74,7 +74,7 @@ async def run_episode():
         rewards_str = ",".join(f"{r:.2f}" for r in rewards) if rewards else ""
         print(f"[END] success={str(success).lower()} steps={step-1} score={total_score:.3f} rewards={rewards_str}", flush=True)
 
-def parse_action(text: str, task: str, episode_id: str, obs: CodeReviewObservation) -> CodeReviewAction:
+def parse_action(text: str, task: str, episode_id: str, obs: CodeReviewObservation, step: int = 1) -> CodeReviewAction:
     text = text.strip()
     action = CodeReviewAction(episode_id=episode_id, risk_level="LOW", affected_modules=[], recommended_reviewer="", merge_decision="")
 
@@ -97,11 +97,11 @@ def parse_action(text: str, task: str, episode_id: str, obs: CodeReviewObservati
                 except:
                     pass
     else:  # task3
-        if not obs.dependency_map:
+        if step == 1:
             risk = text.upper()
             if risk in ["LOW", "MEDIUM", "HIGH", "CRITICAL"]:
                 action.risk_level = risk
-        elif not obs.file_history:
+        elif step == 2:
             try:
                 modules = json.loads(text)
                 if isinstance(modules, list):
