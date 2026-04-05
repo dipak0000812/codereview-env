@@ -8,6 +8,10 @@ from fastapi import HTTPException
 from fastapi import HTTPException
 from openenv.core.env_server.http_server import create_app
 
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
 from models import CodeReviewAction, CodeReviewObservation
 from environment import CodeReviewEnvironment
 from dataset import DatasetLoader
@@ -104,3 +108,14 @@ async def root():
         "tasks": ["task1", "task2", "task3"],
         "endpoints": ["/reset", "/step", "/state", "/health", "/tasks", "/grader", "/baseline"],
     }
+
+
+def main():
+    import uvicorn
+    import os
+    port = int(os.getenv("PORT", 7860))
+    uvicorn.run("server.app:app", host="0.0.0.0", port=port, workers=1)
+
+
+if __name__ == "__main__":
+    main()
