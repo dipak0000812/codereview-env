@@ -4,7 +4,7 @@ description: RL environment for training agents to perform intelligent code revi
 tags:
   - code-review
   - developer-tools
-entrypoint: server.app:app
+entrypoint: server
 tasks:
   - name: task1
     description: Classify risk level from code diff

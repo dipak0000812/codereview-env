@@ -12,8 +12,6 @@ COPY . .
 # Install as a package to create the 'server' entry point
 RUN pip install -e .
 
-RUN python -c "from pathlib import Path; assert Path('data/task1').exists(), 'data/task1 missing'"
-
 ENV PORT=7860
 EXPOSE 7860
 

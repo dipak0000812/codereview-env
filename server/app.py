@@ -5,11 +5,11 @@ from pathlib import Path
 from typing import Dict, Any
 
 from fastapi import HTTPException
-from fastapi import HTTPException
 from openenv.core.env_server.http_server import create_app
 
 import sys
 from pathlib import Path
+# Add parent directory to path so root modules are importable
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from models import CodeReviewAction, CodeReviewObservation
