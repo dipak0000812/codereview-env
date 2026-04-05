@@ -8,9 +8,10 @@ from fastapi import HTTPException
 from openenv.core.env_server.http_server import create_app
 
 import sys
-from pathlib import Path
-# Add parent directory to path so root modules are importable
-sys.path.insert(0, str(Path(__file__).parent.parent))
+import os
+# Add working directory to path so root modules (models, environment, etc.) are importable
+# This is needed because the package is installed to site-packages but root modules live in /app
+sys.path.insert(0, os.getcwd())
 
 from models import CodeReviewAction, CodeReviewObservation
 from environment import CodeReviewEnvironment
