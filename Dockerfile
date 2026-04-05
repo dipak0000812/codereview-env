@@ -9,8 +9,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-# Install as a package to create the 'server' entry point
-RUN pip install -e .
+# Install the package to create the 'server' console script
+RUN pip install .
 
 ENV PORT=7860
 EXPOSE 7860
