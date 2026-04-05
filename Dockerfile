@@ -9,11 +9,12 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
+# Install as a package to create the 'server' entry point
+RUN pip install -e .
+
 RUN python -c "from pathlib import Path; assert Path('data/task1').exists(), 'data/task1 missing'"
 
-ENV PYTHONPATH=/app
 ENV PORT=7860
-
 EXPOSE 7860
 
-CMD ["uvicorn", "server.app:app", "--host", "0.0.0.0", "--port", "7860", "--workers", "1"]
+CMD ["server"]
