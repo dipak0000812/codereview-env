@@ -17,16 +17,22 @@ MAX_STEPS = 10
 async def run_episode():
     print(f"[START] task={TASK_NAME} env=codereview-env model={MODEL_NAME}", flush=True)
 
+    step = 1
+    rewards = []
+    error = None
 
-    client = OpenAI(base_url=API_BASE_URL, api_key=API_KEY)
-    async with HTTPEnvClient(ENV_URL) as env:
-        obs, episode_id = await env.reset(TASK_NAME)
-        step = 1
-        rewards = []
-        done = False
-        error = None
+    try:
+        # Validate token as per Phase 2 guidelines
+        HF_TOKEN = os.getenv("HF_TOKEN")
+        actual_key = os.getenv("API_KEY", HF_TOKEN)
+        if not actual_key:
+            raise ValueError("HF_TOKEN (or API_KEY) is missing and must be set")
 
-        try:
+        client = OpenAI(base_url=API_BASE_URL, api_key=actual_key)
+        async with HTTPEnvClient(ENV_URL) as env:
+            obs, episode_id = await env.reset(TASK_NAME)
+            done = False
+
             while not done and step <= MAX_STEPS:
                 # Build prompt based on observation content
                 if TASK_NAME == "task3":
@@ -61,14 +67,14 @@ async def run_episode():
                 obs = result   # FIX: result IS the observation, not result.observation
                 step += 1
 
-        except Exception as e:
-            error = str(e)
-            print(f"[STEP] step={step} action=error reward=0.00 done=true error={error}", flush=True)
+    except Exception as e:
+        error = str(e).replace("\n", " ")
+        print(f"[STEP] step={step} action=error reward=0.00 done=true error={error}", flush=True)
 
-        total_score = sum(rewards) if rewards else 0.0
-        success = bool(rewards and total_score >= 0.5) if not error else False
-        rewards_str = ",".join(f"{r:.2f}" for r in rewards) if rewards else ""
-        print(f"[END] success={str(success).lower()} steps={step-1} score={total_score:.3f} rewards={rewards_str}", flush=True)
+    total_score = sum(rewards) if rewards else 0.0
+    success = bool(rewards and total_score >= 0.5) if not error else False
+    rewards_str = ",".join(f"{r:.2f}" for r in rewards) if rewards else ""
+    print(f"[END] success={str(success).lower()} steps={step-1 if step > 1 else 0} score={total_score:.3f} rewards={rewards_str}", flush=True)
 
 def parse_action(text: str, task: str, episode_id: str, obs: CodeReviewObservation, step: int = 1) -> CodeReviewAction:
     text = text.strip()
