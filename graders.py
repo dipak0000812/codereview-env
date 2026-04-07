@@ -94,60 +94,27 @@ def merge_score(predicted: str, truth: str, risk_level: str) -> float:
 
 
 def compute_reward(action, ground_truth: dict, task: str) -> float:
-    """Compute reward based on task type and action.
-
-    Args:
-        action: CodeReviewAction from agent
-        ground_truth: Ground truth dictionary
-        task: Task identifier (task1, task2, task3)
-
-    Returns:
-        Reward score in [0.0, 1.0]
-    """
     if task == 'task1':
-        # Task 1: Risk Classification (Easy)
-        r = risk_score(action.risk_level, ground_truth['risk_level'])
-
+        score = risk_score(action.risk_level, ground_truth['risk_level'])
+        
     elif task == 'task2':
-        # Task 2: Blast Radius Identification (Medium)
-        r = jaccard_score(
+        score = jaccard_score(
             action.affected_modules,
             ground_truth['blast_radius']
         )
-
+        
     elif task == 'task3':
-        # Task 3: Full Review Decision (Hard) - Composite weighted score
         r = 0.0
-
-        # Risk level: 25%
-        r += risk_score(
-            action.risk_level,
-            ground_truth['risk_level']
-        ) * 0.25
-
-        # Blast radius: 30%
-        r += jaccard_score(
-            action.affected_modules,
-            ground_truth['blast_radius']
-        ) * 0.30
-
-        # Reviewer: 20%
-        r += reviewer_score(
-            action.recommended_reviewer,
-            ground_truth['recommended_reviewer']
-        ) * 0.20
-
-        # Merge decision: 24% (ensures total sum caps at 0.99, passing validator)
-        r += merge_score(
-            action.merge_decision,
-            ground_truth['merge_decision'],
-            ground_truth['risk_level']
-        ) * 0.24
+        r += risk_score(action.risk_level, ground_truth['risk_level']) * 0.25
+        r += jaccard_score(action.affected_modules, ground_truth['blast_radius']) * 0.30
+        r += reviewer_score(action.recommended_reviewer, ground_truth['recommended_reviewer']) * 0.20
+        r += merge_score(action.merge_decision, ground_truth['merge_decision'], ground_truth['risk_level']) * 0.25
+        score = r
     else:
-        r = 0.0
+        score = 0.01
 
-    # STRICLY CLAMP between 0 and 1 to pass Phase 2 fail-fast validator
-    return max(0.01, min(0.99, r))
+    # CRITICAL: Validator requires strictly open interval (0, 1)
+    return max(0.01, min(0.99, score))
 
 
 def build_feedback(action, ground_truth: dict, task: str) -> str:

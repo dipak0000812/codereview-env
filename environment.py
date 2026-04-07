@@ -88,8 +88,8 @@ class CodeReviewEnvironment(Environment):
             else:
                 rev_score = reviewer_score(action.recommended_reviewer, gt["recommended_reviewer"])
                 merge_sc = merge_score(action.merge_decision, gt["merge_decision"], gt["risk_level"])
-                # Step 3: Final decision (reviewer 20% + merge 24% to cap at 0.99 sum)
-                base_reward = (rev_score * 0.20) + (merge_sc * 0.24)
+                # Step 3: Final decision (reviewer 20% + merge 25%)
+                base_reward = (rev_score * 0.20) + (merge_sc * 0.25)
                 reward = max(0.01, min(0.99, base_reward))
                 next_obs = CodeReviewObservation(
                     episode_id=episode_id, task=task,
