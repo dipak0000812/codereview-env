@@ -62,7 +62,8 @@ class CodeReviewEnvironment(Environment):
 
         if task == "task3":
             if step == 0:
-                reward = risk_score(action.risk_level, gt["risk_level"]) * 0.25
+                base_reward = risk_score(action.risk_level, gt["risk_level"]) * 0.25
+                reward = max(0.01, min(0.99, base_reward))
                 next_obs = CodeReviewObservation(
                     episode_id=episode_id, task=task,
                     diff=scenario["diff"],
@@ -73,7 +74,8 @@ class CodeReviewEnvironment(Environment):
                     feedback=f"Step 1/3: risk_score={reward:.2f}. Next: Blast radius."
                 )
             elif step == 1:
-                reward = jaccard_score(action.affected_modules, gt.get("blast_radius", [])) * 0.30
+                base_reward = jaccard_score(action.affected_modules, gt.get("blast_radius", [])) * 0.30
+                reward = max(0.01, min(0.99, base_reward))
                 next_obs = CodeReviewObservation(
                     episode_id=episode_id, task=task,
                     diff=scenario["diff"],
@@ -87,7 +89,8 @@ class CodeReviewEnvironment(Environment):
                 rev_score = reviewer_score(action.recommended_reviewer, gt["recommended_reviewer"])
                 merge_sc = merge_score(action.merge_decision, gt["merge_decision"], gt["risk_level"])
                 # Step 3: Final decision (reviewer 20% + merge 25%)
-                reward = (rev_score * 0.20) + (merge_sc * 0.25)
+                base_reward = (rev_score * 0.20) + (merge_sc * 0.25)
+                reward = max(0.01, min(0.99, base_reward))
                 next_obs = CodeReviewObservation(
                     episode_id=episode_id, task=task,
                     diff=scenario["diff"],

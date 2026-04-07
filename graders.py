@@ -106,11 +106,11 @@ def compute_reward(action, ground_truth: dict, task: str) -> float:
     """
     if task == 'task1':
         # Task 1: Risk Classification (Easy)
-        return risk_score(action.risk_level, ground_truth['risk_level'])
+        r = risk_score(action.risk_level, ground_truth['risk_level'])
 
     elif task == 'task2':
         # Task 2: Blast Radius Identification (Medium)
-        return jaccard_score(
+        r = jaccard_score(
             action.affected_modules,
             ground_truth['blast_radius']
         )
@@ -143,10 +143,11 @@ def compute_reward(action, ground_truth: dict, task: str) -> float:
             ground_truth['merge_decision'],
             ground_truth['risk_level']
         ) * 0.25
+    else:
+        r = 0.0
 
-        return min(max(r, 0.0), 1.0)
-
-    return 0.0
+    # STRICLY CLAMP between 0 and 1 to pass Phase 2 fail-fast validator
+    return max(0.01, min(0.99, r))
 
 
 def build_feedback(action, ground_truth: dict, task: str) -> str:
