@@ -137,12 +137,12 @@ def compute_reward(action, ground_truth: dict, task: str) -> float:
             ground_truth['recommended_reviewer']
         ) * 0.20
 
-        # Merge decision: 25%
+        # Merge decision: 24% (ensures total sum caps at 0.99, passing validator)
         r += merge_score(
             action.merge_decision,
             ground_truth['merge_decision'],
             ground_truth['risk_level']
-        ) * 0.25
+        ) * 0.24
     else:
         r = 0.0
 
