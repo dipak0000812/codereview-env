@@ -9,20 +9,16 @@ from models import CodeReviewAction, CodeReviewObservation
 
 API_BASE_URL = os.getenv("API_BASE_URL", "https://router.huggingface.co/v1")
 MODEL_NAME = os.getenv("MODEL_NAME", "Qwen/Qwen2.5-72B-Instruct")
-HF_TOKEN = os.getenv("HF_TOKEN")
-TASK_NAME = os.getenv("TASK_NAME", "task3")
-ENV_URL = os.getenv("ENV_URL", "http://localhost:7860")
+API_KEY      = os.getenv("API_KEY") or os.getenv("HF_TOKEN")  # validator injects API_KEY
+TASK_NAME    = os.getenv("TASK_NAME", "task3")
+ENV_URL      = os.getenv("ENV_URL", "https://Dipak09-code-review-env.hf.space")
 MAX_STEPS = 10
 
 async def run_episode():
     print(f"[START] task={TASK_NAME} env=codereview-env model={MODEL_NAME}", flush=True)
 
-    if not HF_TOKEN:
-        print("[STEP] step=1 action=error reward=0.00 done=true error=HF_TOKEN not set", flush=True)
-        print(f"[END] success=false steps=0 score=0.000 rewards=", flush=True)
-        return
 
-    client = OpenAI(base_url=API_BASE_URL, api_key=HF_TOKEN)
+    client = OpenAI(base_url=API_BASE_URL, api_key=API_KEY)
     async with HTTPEnvClient(ENV_URL) as env:
         obs, episode_id = await env.reset(TASK_NAME)
         step = 1
