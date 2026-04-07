@@ -61,7 +61,8 @@ def close_session(episode_id: str) -> None:
     Args:
         episode_id: UUID string for the episode
     """
-    _sessions.pop(episode_id, None)
+    if episode_id in _sessions:
+        _sessions[episode_id]['done'] = True
 
 
 def list_sessions() -> list:

@@ -66,31 +66,6 @@ async def get_tasks():
     }
 
 
-@app.post("/grader")
-async def grade_action(request: Dict[str, Any]):
-    action_data = request.get("action", {})
-    scenario_id = request.get("scenario_id")
-    if not action_data or not scenario_id:
-        raise HTTPException(status_code=400, detail="action and scenario_id required")
-
-    dataset = DatasetLoader()
-    scenario = dataset.get_scenario_by_id(scenario_id)
-    if not scenario:
-        raise HTTPException(status_code=404, detail=f"Scenario not found: {scenario_id}")
-
-    action = CodeReviewAction(
-        episode_id=action_data.get("episode_id", ""),
-        risk_level=action_data.get("risk_level", "LOW"),
-        affected_modules=action_data.get("affected_modules", []),
-        recommended_reviewer=action_data.get("recommended_reviewer", ""),
-        merge_decision=action_data.get("merge_decision", ""),
-    )
-
-    score = compute_reward(action, scenario["ground_truth"], scenario["task"])
-    feedback = build_feedback(action, scenario["ground_truth"], scenario["task"])
-
-    return {"score": score, "feedback": feedback}
-
 
 @app.get("/baseline")
 async def get_baseline_scores():
