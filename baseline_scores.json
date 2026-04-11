@@ -1,14 +1,11 @@
 {
   "baseline_scores": {
     "task1": 0.394,
-    "task2": 0.000,
+    "task2": 0.001,
     "task3": 0.283
   },
-  "description": "Pre-computed baseline scores from deterministic naive agent (seed=42)",
-  "methodology": "Averaged over 100 episodes per task using deterministic naive predictions (always LOW, empty map, alice, APPROVE)",
-  "expected_random_range": {
-    "task1": "0.15-0.25 (25% exact match + adjacency bonus)",
-    "task2": "0.10-0.15 (random module selection has low Jaccard overlap)",
-    "task3": "0.20-0.30 (multi-step scoring with total weighted to 1.0)"
-  }
+  "agent": "NaiveBaselineAgent",
+  "description": "Always predicts: risk_level=LOW, affected_modules=[], recommended_reviewer=first_available, merge_decision=APPROVE",
+  "methodology": "100 episodes per task, averaged across all scenario files",
+  "note": "task2 near-zero because empty blast radius vs non-empty ground truth yields Jaccard=0"
 }

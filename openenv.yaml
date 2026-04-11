@@ -1,17 +1,23 @@
+spec_version: 1
 name: codereview-env
-version: "1.0.0"
+type: space
+runtime: fastapi
+app: server.app:app
+port: 7860
 description: RL environment for training agents to perform intelligent code review.
 tags:
   - code-review
   - developer-tools
-entrypoint: server
 tasks:
   - name: task1
     description: Classify risk level from code diff
     difficulty: easy
+    grader: grader
   - name: task2
     description: Identify blast radius from dependency map
     difficulty: medium
+    grader: grader
   - name: task3
     description: Full review decision with composite scoring
     difficulty: hard
+    grader: grader

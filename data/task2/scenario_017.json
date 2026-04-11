@@ -1,0 +1,23 @@
+{
+  "scenario_id": "task2_017",
+  "task": "task2",
+  "diff": "--- a/notifications/email.py\n+++ b/notifications/email.py\n@@ -10,5 +10,8 @@\n def send_email(to, subject, body):\n-    smtp = smtplib.SMTP(SMTP_HOST)\n-    smtp.sendmail(FROM_ADDR, to, body)\n+    with smtplib.SMTP_SSL(SMTP_HOST, 465) as smtp:\n+        smtp.login(SMTP_USER, SMTP_PASS)\n+        msg = MIMEText(body, 'html')\n+        msg['Subject'] = subject\n+        smtp.sendmail(FROM_ADDR, to, msg.as_string())",
+  "dependency_map": {
+    "notifications/email.py": ["notifications/queue.py", "users/service.py"],
+    "notifications/queue.py": ["core/redis.py"]
+  },
+  "file_history": {
+    "notifications/email.py": {
+      "commits_last_30d": 0,
+      "last_incident": null,
+      "test_coverage": 20
+    }
+  },
+  "available_reviewers": ["alice", "bob"],
+  "ground_truth": {
+    "risk_level": "LOW",
+    "blast_radius": ["notifications/queue.py"],
+    "recommended_reviewer": "bob",
+    "merge_decision": "APPROVE"
+  }
+}

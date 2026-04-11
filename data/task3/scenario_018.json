@@ -1,0 +1,30 @@
+{
+  "scenario_id": "task3_018",
+  "task": "task3",
+  "diff": "--- a/models/base.py\n+++ b/models/base.py\n@@ -5,5 +5,7 @@\n class BaseModel(db.Model):\n     id = db.Column(db.Integer, primary_key=True)\n     created_at = db.Column(db.DateTime, default=datetime.utcnow)\n+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)\n+    is_deleted = db.Column(db.Boolean, default=False)",
+  "dependency_map": {
+    "models/base.py": ["models/user.py", "models/order.py", "models/product.py", "models/payment.py"],
+    "models/user.py": ["users/service.py", "auth/models.py"],
+    "models/order.py": ["orders/service.py"],
+    "models/payment.py": ["payments/processor.py"]
+  },
+  "file_history": {
+    "models/base.py": {
+      "commits_last_30d": 1,
+      "last_incident": null,
+      "test_coverage": 30
+    },
+    "models/user.py": {
+      "commits_last_30d": 8,
+      "last_incident": "2024-08-01",
+      "test_coverage": 75
+    }
+  },
+  "available_reviewers": ["alice", "bob", "charlie"],
+  "ground_truth": {
+    "risk_level": "CRITICAL",
+    "blast_radius": ["models/user.py", "models/order.py", "models/product.py", "models/payment.py"],
+    "recommended_reviewer": "charlie",
+    "merge_decision": "BLOCK"
+  }
+}

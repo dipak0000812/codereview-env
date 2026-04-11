@@ -1,0 +1,23 @@
+{
+  "scenario_id": "task2_016",
+  "task": "task2",
+  "diff": "--- a/api/router.py\n+++ b/api/router.py\n@@ -1,5 +1,7 @@\n from fastapi import APIRouter\n+from fastapi import Depends\n+from auth.dependencies import require_auth\n \n router = APIRouter()\n-router.include_router(users_router, prefix='/users')\n+router.include_router(users_router, prefix='/users', dependencies=[Depends(require_auth)])\n+router.include_router(admin_router, prefix='/admin', dependencies=[Depends(require_auth)])",
+  "dependency_map": {
+    "api/router.py": ["api/views.py", "auth/dependencies.py"],
+    "auth/dependencies.py": ["auth/tokens.py", "auth/models.py"]
+  },
+  "file_history": {
+    "api/router.py": {
+      "commits_last_30d": 2,
+      "last_incident": null,
+      "test_coverage": 60
+    }
+  },
+  "available_reviewers": ["alice", "bob", "charlie"],
+  "ground_truth": {
+    "risk_level": "MEDIUM",
+    "blast_radius": ["auth/dependencies.py", "auth/tokens.py"],
+    "recommended_reviewer": "alice",
+    "merge_decision": "APPROVE"
+  }
+}

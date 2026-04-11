@@ -1,0 +1,26 @@
+{
+  "scenario_id": "task2_011",
+  "task": "task2",
+  "diff": "--- a/auth/oauth.py\n+++ b/auth/oauth.py\n@@ -30,7 +30,10 @@\n def exchange_code(code: str) -> dict:\n-    token = requests.post(OAUTH_URL, data={'code': code})\n-    return token.json()\n+    token = requests.post(OAUTH_URL, data={\n+        'code': code,\n+        'client_id': CLIENT_ID,\n+        'client_secret': CLIENT_SECRET,\n+        'grant_type': 'authorization_code'\n+    })\n+    data = token.json()\n+    cache_token(data['access_token'], data.get('expires_in', 3600))\n+    return data",
+  "dependency_map": {
+    "auth/oauth.py": ["auth/cache.py", "auth/models.py", "api/middleware.py"],
+    "auth/cache.py": ["core/redis.py"],
+    "auth/models.py": ["db/connection.py"],
+    "api/middleware.py": ["auth/tokens.py", "core/exceptions.py"],
+    "auth/tokens.py": ["core/crypto.py"]
+  },
+  "file_history": {
+    "auth/oauth.py": {
+      "commits_last_30d": 6,
+      "last_incident": "2024-10-15",
+      "test_coverage": 65
+    }
+  },
+  "available_reviewers": ["alice", "bob", "charlie"],
+  "ground_truth": {
+    "risk_level": "HIGH",
+    "blast_radius": ["auth/cache.py", "api/middleware.py", "auth/tokens.py"],
+    "recommended_reviewer": "alice",
+    "merge_decision": "REQUEST_CHANGES"
+  }
+}

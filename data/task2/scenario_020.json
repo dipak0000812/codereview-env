@@ -1,0 +1,24 @@
+{
+  "scenario_id": "task2_020",
+  "task": "task2",
+  "diff": "--- a/search/indexer.py\n+++ b/search/indexer.py\n@@ -15,6 +15,10 @@\n def index_document(doc_id, content):\n-    es.index(index='docs', id=doc_id, body={'content': content})\n+    es.index(\n+        index='docs',\n+        id=doc_id,\n+        body={'content': content, 'indexed_at': datetime.utcnow().isoformat()},\n+        refresh='wait_for'\n+    )\n+    invalidate_search_cache(doc_id)",
+  "dependency_map": {
+    "search/indexer.py": ["search/cache.py", "search/query.py", "api/search_views.py"],
+    "search/cache.py": ["core/redis.py"],
+    "search/query.py": ["api/search_views.py"]
+  },
+  "file_history": {
+    "search/indexer.py": {
+      "commits_last_30d": 3,
+      "last_incident": null,
+      "test_coverage": 40
+    }
+  },
+  "available_reviewers": ["alice", "bob", "charlie"],
+  "ground_truth": {
+    "risk_level": "MEDIUM",
+    "blast_radius": ["search/cache.py", "search/query.py"],
+    "recommended_reviewer": "charlie",
+    "merge_decision": "APPROVE"
+  }
+}

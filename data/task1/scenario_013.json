@@ -1,0 +1,24 @@
+{
+  "scenario_id": "task1_013",
+  "task": "task1",
+  "diff": "--- a/api/admin.py\n+++ b/api/admin.py\n@@ -28,6 +28,10 @@\n @app.route('/admin/users', methods=['GET'])\n def list_users():\n-    users = db.query('SELECT * FROM users')\n+    users = db.query('SELECT id, email, role FROM users WHERE role != \"admin\"')\n     return jsonify(users)\n+\n+@app.route('/admin/users/export', methods=['GET'])\n+def export_users():\n+    users = db.query('SELECT * FROM users')\n+    return jsonify(users)",
+  "dependency_map": {
+    "api/admin.py": ["db/connection.py", "auth/decorators.py", "models/user.py"],
+    "db/connection.py": ["config/database.py"],
+    "models/user.py": ["db/orm.py"]
+  },
+  "file_history": {
+    "api/admin.py": {
+      "commits_last_30d": 7,
+      "last_incident": "2024-11-03",
+      "test_coverage": 30
+    }
+  },
+  "available_reviewers": ["alice", "bob", "charlie"],
+  "ground_truth": {
+    "risk_level": "CRITICAL",
+    "blast_radius": ["db/connection.py", "models/user.py"],
+    "recommended_reviewer": "alice",
+    "merge_decision": "BLOCK"
+  }
+}

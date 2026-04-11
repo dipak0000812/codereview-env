@@ -1,0 +1,23 @@
+{
+  "scenario_id": "task1_020",
+  "task": "task1",
+  "diff": "--- a/jobs/scheduler.py\n+++ b/jobs/scheduler.py\n@@ -18,5 +18,7 @@\n def run_job(job_id: str):\n     job = Job.get(job_id)\n-    job.execute()\n-    job.status = 'done'\n+    try:\n+        job.execute()\n+        job.status = 'done'\n+    except Exception as e:\n+        job.status = 'failed'\n+        job.error = str(e)\n+        logger.error(f'Job {job_id} failed: {e}')\n     job.save()",
+  "dependency_map": {
+    "jobs/scheduler.py": ["jobs/models.py", "core/logger.py"],
+    "jobs/models.py": ["db/connection.py"]
+  },
+  "file_history": {
+    "jobs/scheduler.py": {
+      "commits_last_30d": 5,
+      "last_incident": "2024-08-10",
+      "test_coverage": 55
+    }
+  },
+  "available_reviewers": ["alice", "bob"],
+  "ground_truth": {
+    "risk_level": "MEDIUM",
+    "blast_radius": [],
+    "recommended_reviewer": "bob",
+    "merge_decision": "APPROVE"
+  }
+}

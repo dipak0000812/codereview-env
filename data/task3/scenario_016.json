@@ -1,0 +1,28 @@
+{
+  "scenario_id": "task3_016",
+  "task": "task3",
+  "diff": "--- a/auth/tokens.py\n+++ b/auth/tokens.py\n@@ -5,6 +5,6 @@\n SECRET_KEY = os.environ.get('SECRET_KEY', 'changeme')\n \n def create_token(user_id: int) -> str:\n-    payload = {'sub': user_id, 'iat': time.time()}\n+    payload = {'sub': user_id, 'iat': time.time(), 'exp': time.time() + 3600}\n-    return jwt.encode(payload, SECRET_KEY)\n+    return jwt.encode(payload, SECRET_KEY, algorithm='HS256')",
+  "dependency_map": {
+    "auth/tokens.py": ["auth/views.py", "api/middleware.py", "users/service.py"],
+    "api/middleware.py": ["core/exceptions.py"]
+  },
+  "file_history": {
+    "auth/tokens.py": {
+      "commits_last_30d": 2,
+      "last_incident": "2024-09-01",
+      "test_coverage": 78
+    },
+    "api/middleware.py": {
+      "commits_last_30d": 5,
+      "last_incident": null,
+      "test_coverage": 72
+    }
+  },
+  "available_reviewers": ["alice", "bob", "charlie"],
+  "ground_truth": {
+    "risk_level": "HIGH",
+    "blast_radius": ["auth/views.py", "api/middleware.py"],
+    "recommended_reviewer": "alice",
+    "merge_decision": "REQUEST_CHANGES"
+  }
+}

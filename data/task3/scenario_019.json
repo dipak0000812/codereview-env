@@ -1,0 +1,28 @@
+{
+  "scenario_id": "task3_019",
+  "task": "task3",
+  "diff": "--- a/ml/pipeline.py\n+++ b/ml/pipeline.py\n@@ -15,7 +15,9 @@\n def train_model(dataset_path, epochs=10):\n-    data = pd.read_csv(dataset_path)\n+    data = pd.read_csv(dataset_path, dtype=str)\n     model = build_model(data.shape[1] - 1)\n-    model.fit(data.drop('label', axis=1), data['label'])\n+    X = data.drop('label', axis=1).astype(float)\n+    y = data['label'].astype(int)\n+    model.fit(X, y)\n     return model",
+  "dependency_map": {
+    "ml/pipeline.py": ["ml/model.py", "data/preprocessor.py"],
+    "ml/model.py": ["ml/layers.py"]
+  },
+  "file_history": {
+    "ml/pipeline.py": {
+      "commits_last_30d": 9,
+      "last_incident": null,
+      "test_coverage": 60
+    },
+    "ml/model.py": {
+      "commits_last_30d": 4,
+      "last_incident": null,
+      "test_coverage": 70
+    }
+  },
+  "available_reviewers": ["alice", "bob", "charlie"],
+  "ground_truth": {
+    "risk_level": "MEDIUM",
+    "blast_radius": [],
+    "recommended_reviewer": "charlie",
+    "merge_decision": "REQUEST_CHANGES"
+  }
+}

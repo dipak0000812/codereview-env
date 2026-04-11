@@ -1,0 +1,23 @@
+{
+  "scenario_id": "task1_017",
+  "task": "task1",
+  "diff": "--- a/api/upload.py\n+++ b/api/upload.py\n@@ -20,8 +20,12 @@\n @app.route('/upload', methods=['POST'])\n def upload_file():\n     f = request.files['file']\n-    f.save(os.path.join(UPLOAD_DIR, f.filename))\n-    return {'status': 'ok'}\n+    filename = secure_filename(f.filename)\n+    if not filename:\n+        return {'error': 'Invalid filename'}, 400\n+    ext = filename.rsplit('.', 1)[-1].lower()\n+    if ext not in ALLOWED_EXTENSIONS:\n+        return {'error': 'File type not allowed'}, 400\n+    f.save(os.path.join(UPLOAD_DIR, filename))\n+    return {'status': 'ok', 'filename': filename}",
+  "dependency_map": {
+    "api/upload.py": ["storage/s3.py", "auth/decorators.py"],
+    "storage/s3.py": ["config/aws.py"]
+  },
+  "file_history": {
+    "api/upload.py": {
+      "commits_last_30d": 4,
+      "last_incident": "2024-07-22",
+      "test_coverage": 45
+    }
+  },
+  "available_reviewers": ["alice", "bob", "charlie"],
+  "ground_truth": {
+    "risk_level": "HIGH",
+    "blast_radius": [],
+    "recommended_reviewer": "alice",
+    "merge_decision": "REQUEST_CHANGES"
+  }
+}

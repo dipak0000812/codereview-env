@@ -1,0 +1,22 @@
+{
+  "scenario_id": "task1_016",
+  "task": "task1",
+  "diff": "--- a/utils/helpers.py\n+++ b/utils/helpers.py\n@@ -3,3 +3,5 @@\n def format_date(date_str):\n-    return datetime.strptime(date_str, '%Y-%m-%d')\n+    try:\n+        return datetime.strptime(date_str, '%Y-%m-%d')\n+    except ValueError:\n+        return None",
+  "dependency_map": {
+    "utils/helpers.py": ["reports/generator.py"]
+  },
+  "file_history": {
+    "utils/helpers.py": {
+      "commits_last_30d": 2,
+      "last_incident": null,
+      "test_coverage": 88
+    }
+  },
+  "available_reviewers": ["alice", "bob"],
+  "ground_truth": {
+    "risk_level": "LOW",
+    "blast_radius": [],
+    "recommended_reviewer": "bob",
+    "merge_decision": "APPROVE"
+  }
+}

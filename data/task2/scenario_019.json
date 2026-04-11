@@ -1,0 +1,23 @@
+{
+  "scenario_id": "task2_019",
+  "task": "task2",
+  "diff": "--- a/core/exceptions.py\n+++ b/core/exceptions.py\n@@ -3,8 +3,12 @@\n class AppException(Exception):\n     def __init__(self, message, status_code=500):\n         super().__init__(message)\n         self.status_code = status_code\n+        self.error_code = None\n+\n+class AuthException(AppException):\n+    def __init__(self, message):\n+        super().__init__(message, status_code=401)\n+        self.error_code = 'AUTH_FAILED'",
+  "dependency_map": {
+    "core/exceptions.py": ["api/middleware.py", "auth/views.py", "api/error_handlers.py"],
+    "api/error_handlers.py": ["api/responses.py"]
+  },
+  "file_history": {
+    "core/exceptions.py": {
+      "commits_last_30d": 2,
+      "last_incident": null,
+      "test_coverage": 70
+    }
+  },
+  "available_reviewers": ["alice", "bob"],
+  "ground_truth": {
+    "risk_level": "LOW",
+    "blast_radius": ["api/middleware.py", "api/error_handlers.py"],
+    "recommended_reviewer": "bob",
+    "merge_decision": "APPROVE"
+  }
+}

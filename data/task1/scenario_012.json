@@ -1,0 +1,22 @@
+{
+  "scenario_id": "task1_012",
+  "task": "task1",
+  "diff": "--- a/config/settings.py\n+++ b/config/settings.py\n@@ -10,3 +10,4 @@\n DEBUG = False\n ALLOWED_HOSTS = ['example.com']\n+CORS_ALLOWED_ORIGINS = ['https://app.example.com']\n+SESSION_COOKIE_SECURE = True",
+  "dependency_map": {
+    "config/settings.py": ["core/middleware.py", "api/views.py"]
+  },
+  "file_history": {
+    "config/settings.py": {
+      "commits_last_30d": 1,
+      "last_incident": null,
+      "test_coverage": 0
+    }
+  },
+  "available_reviewers": ["alice", "bob"],
+  "ground_truth": {
+    "risk_level": "LOW",
+    "blast_radius": [],
+    "recommended_reviewer": "bob",
+    "merge_decision": "APPROVE"
+  }
+}

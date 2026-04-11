@@ -1,0 +1,29 @@
+{
+  "scenario_id": "task3_013",
+  "task": "task3",
+  "diff": "--- a/payments/processor.py\n+++ b/payments/processor.py\n@@ -42,8 +42,12 @@\n def charge_card(user_id, amount, card_token):\n-    result = stripe.charge(card_token, amount)\n-    return result\n+    if amount <= 0:\n+        raise ValueError('Amount must be positive')\n+    result = stripe.charge(card_token, amount, currency='usd')\n+    log_transaction(user_id, amount, result['id'])\n+    return result",
+  "dependency_map": {
+    "payments/processor.py": ["payments/models.py", "payments/logger.py", "billing/invoices.py"],
+    "payments/models.py": ["db/connection.py"],
+    "billing/invoices.py": ["email/sender.py"]
+  },
+  "file_history": {
+    "payments/processor.py": {
+      "commits_last_30d": 3,
+      "last_incident": "2024-10-01",
+      "test_coverage": 72
+    },
+    "billing/invoices.py": {
+      "commits_last_30d": 6,
+      "last_incident": "2024-09-15",
+      "test_coverage": 50
+    }
+  },
+  "available_reviewers": ["alice", "bob", "charlie", "diana"],
+  "ground_truth": {
+    "risk_level": "HIGH",
+    "blast_radius": ["payments/models.py", "billing/invoices.py"],
+    "recommended_reviewer": "diana",
+    "merge_decision": "REQUEST_CHANGES"
+  }
+}

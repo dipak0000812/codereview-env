@@ -1,173 +1,183 @@
----
-title: Code Review Intelligence Environment
-emoji: 📝
-colorFrom: blue
-colorTo: gray
-sdk: docker
-sdk_version: "1.0"
-app_file: app.py
-pinned: false
----
-# CodeReview Intelligence - OpenEnv Environment
+# CodeReview Intelligence Environment
 
-An RL environment for training agents to perform intelligent code review, inspired by the PRISM-AI project from the GitLab AI Hackathon.
+A stateless Reinforcement Learning environment for training agents to perform deterministic, multi-step code review tasks — built for the Meta PyTorch OpenEnv Hackathon.
 
-## Overview
+## Problem Statement
 
-This environment trains RL agents to review code the way senior engineers do:
-- **Assess risk level** (LOW / MEDIUM / HIGH / CRITICAL)
-- **Compute blast radius** from dependency graphs
-- **Identify optimal reviewers** based on context
-- **Make merge decisions** (APPROVE / BLOCK / REQUEST_CHANGES)
-## Quick Start
-### Installation
-```bash
-pip install -r requirements.txt
-```
-### Run the Server
-```bash
-uvicorn app:app --host 0.0.0.0 --port 7860
-```
-### Run Baseline Agent
-```bash
-python baseline.py --episodes 10
-```
-### Run Tests
-```bash
-pytest tests/ -v
-```
-## Three Tasks
-### Task 1: Risk Classification (Easy)
-Classify the risk level of a code change from the diff alone.
-**Observation**: diff, filename, lines added/removed
-**Action**: risk_level (LOW / MEDIUM / HIGH / CRITICAL)
-**Grading**: Exact match = 1.0, 1 level = 0.5
+Code review requires synthesizing disparate signals: code diffs, dependency maps, file commit histories, and organizational context. Static analysis tools target syntactical errors but fail to capture architectural intent or blast radius. Evaluating agents on code review requires a reproducible, isolated environment that models the review process as a sequential decision problem rather than a single-turn text generation task.
 
-### Task 2: Blast Radius Identification (Medium)
-Identify all modules that would be affected by a change.
+## Why Reinforcement Learning
 
-**Observation**: diff + dependency map (module  imports)
-**Action**: affected_modules (list of module paths)
-**Grading**: Jaccard similarity |predicted  truth| / |predicted  truth|
-### Task 3: Full Review Decision (Hard)
-Make a complete review decision synthesizing all available context.
-**Observation**: diff + dependency map + file history + available reviewers
-**Action**: All 4 fields (risk_level, affected_modules, reviewer, merge_decision)
-**Grading**: Composite weighted score
-- Risk level: 25%
-- Blast radius: 30%
-- Reviewer: 20%
-- Merge decision: 25%
+Code review is inherently sequential. An agent must assess risk, inspect dependency graphs, identify expert reviewers, and determine merge actions — without full context revealed upfront. Modeling this as a Markov Decision Process (MDP) allows agents to learn across multiple steps, where early misclassifications constrain accuracy on downstream decisions. This environment explicitly tests that progressive reasoning capacity.
 
-**Safety Rule**: APPROVE on CRITICAL risk  -0.5 penalty
+## Task Overview
 
-## API Endpoints
+| Task | Name | Difficulty | Steps | Description |
+|---|---|---|---|---|
+| task1 | Risk Classification | Easy | 1 | Single-step risk level classification from code diff |
+| task2 | Blast Radius Identification | Medium | 1 | Affected module identification via dependency graph traversal |
+| task3 | Full Review Decision | Hard | 3 | Multi-step: risk → blast radius → reviewer + merge decision |
 
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/reset` | POST | Reset environment, start new episode |
-| `/step` | POST | Take action, get reward |
-| `/state` | GET | Get current state |
-| `/tasks` | GET | List available tasks |
-| `/grader` | POST | Grade arbitrary action |
-| `/baseline` | GET | Get baseline scores |
-| `/health` | GET | Health check |
+## Task Details
 
-## Architecture
+### Task 1: Risk Classification
+Given a code diff (and full dependency map for context), predict the categorical risk level: `LOW`, `MEDIUM`, `HIGH`, or `CRITICAL`. Graded by ordinal distance with an additional safety penalty for severe underestimation (predicting `LOW` when truth is `CRITICAL`).
+
+### Task 2: Blast Radius Identification
+Given a code diff and a module dependency graph, output the list of directly impacted modules. Graded using Jaccard similarity with case-insensitive path matching to handle OS differences.
+
+### Task 3: Full Review Decision (Multi-Step)
+A progressive 3-step episode where context is revealed incrementally:
+- **Step 1**: Given `diff` only → output `risk_level`
+- **Step 2**: Given `diff + dependency_map` → output `affected_modules`
+- **Step 3**: Given `diff + dependency_map + file_history + available_reviewers` → output `recommended_reviewer` and `merge_decision`
+
+## Reward Design
+
+All grader outputs are deterministic, pure functions returning floats in the strict open interval (0, 1).
+
+| Component | Weight (task3) | Scoring Rule |
+|---|---|---|
+| Risk Classification | 25% | Ordinal distance table: {0→1.0, 1→0.5, 2→0.15, 3→0.0}. Extra 0.5× penalty for LOW vs CRITICAL. |
+| Blast Radius | 30% | Jaccard similarity: \|A ∩ B\| / \|A ∪ B\|, case-insensitive |
+| Reviewer | 20% | Exact match (case-insensitive, whitespace-stripped) |
+| Merge Decision | 25% | Exact match. Safety rule: APPROVE on CRITICAL risk → −0.5 penalty |
+
+Task 1 and Task 2 use only their respective components.
+
+## Episode Flow (Task 3)
 
 ```
-+-------------------------------------------------------------+
-|                    AGENT / BASELINE SCRIPT                  |
-|                  CodeReviewEnv client                        |
-+------------------------------------------------------------+
-                       |
-                       
-+-------------------------------------------------------------+
-|              DOCKER CONTAINER (port 7860)                    |
-|                                                             |
-|  +------------------------------------------------------+  |
-|  |           FastAPI Server                              |  |
-|  |                                                      |  |
-|  |   /reset  environment.reset(task)                   |  |
-|  |   /step   environment.step(action, episode_id)      |  |
-|  |   /tasks  returns task list + action schema         |  |
-|  |   /grader  grades arbitrary action vs scenario       |  |
-|  |   /baseline  returns pre-computed scores            |  |
-|  +------------------------------------------------------+  |
-|                              |                               |
-|         +----------------------------------------+         |
-|                                                          |
-|  +--------------+   +--------------+   +--------------+     |
-|  | sessions.py  |   |  graders.py  |   |  dataset.py  |     |
-|  | (episode     |   | (pure        |   | (loads JSON  |     |
-|  |  store)      |   |  functions)  |   |  scenarios)  |     |
-|  +--------------+   +--------------+   +--------------+     |
-+-------------------------------------------------------------+
+reset() → obs: {diff}
+  ↓
+step(risk_level) → reward₁ (25% weight), obs: {diff, dependency_map}
+  ↓
+step(affected_modules) → reward₂ (30% weight), obs: {diff, dependency_map, file_history, reviewers}
+  ↓
+step(reviewer + merge_decision) → reward₃ (45% weight), done=True
 ```
 
-## Stateless Design
+## Dataset
 
-The environment is **stateless**. All episode state lives in `sessions.py` keyed by `episode_id`. This ensures:
-- Multiple concurrent requests never contaminate each other
-- Clean episode boundaries
-- Thread-safe operation
+- **30 scenarios per task** (90 total) — diverse enterprise code review scenarios
+- Domains: authentication, payments, ML pipelines, admin APIs, database migrations, search, notifications
+- Risk distribution: LOW (20%), MEDIUM (30%), HIGH (30%), CRITICAL (20%)
+- Blast radius: empty (40%), 1–2 modules (35%), 3+ modules (25%)
 
-## Baseline Scores
+## Baseline Results
 
-| Task | Baseline Score | Description |
-|------|----------------|-------------|
-| task1 | 0.394 | Naive risk classification (Always LOW) |
-| task2 | 0.000 | Naive module selection (Always empty) |
-| task3 | 0.283 | Naive sequential full decision (3 steps, weighted) |
+Deterministic naive agent (always predicts LOW, empty blast radius, first reviewer, APPROVE):
 
-A trained agent should significantly outperform these baselines.
+| Task | Baseline Score | Notes |
+|---|---|---|
+| task1 | 0.394 | Correct for LOW scenarios; wrong for HIGH/CRITICAL |
+| task2 | ~0.001 | Empty list vs non-empty truth → near-zero Jaccard |
+| task3 | 0.283 | Combines all three weaknesses |
 
-## Docker
+## Environment Architecture
+
+```
+┌────────────────────────────────────────────────────┐
+│                   Agent / Inference                │
+└──────────────────────┬─────────────────────────────┘
+                       │ HTTP/JSON
+┌──────────────────────▼─────────────────────────────┐
+│               FastAPI Server (server/app.py)        │
+│  /reset  /step  /grader  /tasks  /info  /metrics   │
+│                       │                            │
+│  ┌─────────────┐  ┌───▼──────────┐                 │
+│  │environment.py│  │  sessions.py │                 │
+│  │ (MDP logic) │  │ (UUID store) │                 │
+│  └──────┬──────┘  └──────────────┘                 │
+│         │                                          │
+│  ┌──────▼──────┐  ┌──────────────┐                 │
+│  │  graders.py  │  │  dataset.py  │                 │
+│  │ (pure funcs) │  │ (JSON files) │                 │
+│  └─────────────┘  └──────────────┘                 │
+└────────────────────────────────────────────────────┘
+```
+
+## API Reference
+
+| Method | Endpoint | Description |
+|---|---|---|
+| POST | `/reset` | Initialize episode, returns initial observation |
+| POST | `/step` | Submit action, returns next observation + reward |
+| POST | `/grader` | Grade a completed action payload |
+| GET | `/tasks` | List tasks, action schema, step counts |
+| GET | `/info` | Dataset stats, reward design documentation |
+| GET | `/baseline` | Pre-computed naive baseline scores |
+| GET | `/metrics` | Active session count + stale session purge |
+| GET | `/health` | Server availability check |
+
+## Running Locally
 
 ```bash
-# Build
+# Docker
 docker build -t codereview-env .
-# Run
 docker run -p 7860:7860 codereview-env
-# Test
-docker run -p 7860:7860 codereview-env &
-curl http://localhost:7860/health
+
+# Local dev
+python -m venv venv
+source venv/bin/activate          # Linux/macOS
+# .\\venv\\Scripts\\activate       # Windows
+pip install -r requirements.txt
+python -m pytest tests/ -v        # Run test suite (94 tests)
+python baseline.py --episodes 10  # Run baseline agent
 ```
+
+## Running Inference (LLM Agent)
+
+```bash
+export HF_TOKEN=hf_...
+export ENV_URL=https://Dipak09-code-review-env.hf.space
+python inference.py
+```
+
+The inference agent uses a chain-of-thought system prompt with step-specific structured prompts for each of the 3 tasks.
 
 ## Project Structure
 
 ```
 codereview-env/
-├── app.py                 # FastAPI server
-├── environment.py         # Stateless environment
-├── graders.py             # Pure grading functions
-├── sessions.py            # Episode session store
-├── dataset.py             # JSON scenario loader
-├── models.py              # Pydantic types
-├── client.py              # Async HTTP client
-├── baseline.py            # Deterministic baseline agent
-├── inference.py           # Mandatory inference script
-├── baseline_scores.json   # Pre-computed baseline scores
-├── openenv.yaml           # OpenEnv manifest
-├── Dockerfile
-├── requirements.txt
-├── pyproject.toml
+├── environment.py       # MDP: reset/step/grader with progressive context reveal
+├── graders.py           # Pure scoring functions (deterministic, crash-safe)
+├── sessions.py          # Thread-safe UUID session store (TTL-based cleanup)
+├── dataset.py           # JSON scenario loader for 30×3 scenarios
+├── models.py            # Pydantic schemas: Action, Observation, State
+├── inference.py         # LLM agent with CoT prompts and robust output parsing
+├── baseline.py          # Naive baseline agent for comparison
+├── server/app.py        # FastAPI routes: reset, step, grader, info, metrics
 ├── data/
-│   ├── task1/             # 10 scenarios
-│   ├── task2/             # 10 scenarios
-│   └── task3/             # 10 scenarios
-└── tests/
-    ├── test_grader_variance.py
-    └── test_environment.py
+│   ├── task1/           # 20 scenarios: risk classification
+│   ├── task2/           # 20 scenarios: blast radius identification
+│   └── task3/           # 20 scenarios: full multi-step review
+├── tests/
+│   ├── test_environment.py      # 35 environment lifecycle tests
+│   ├── test_grader_variance.py  # 59 grader correctness + variance tests
+│   └── test_clamp_compliance.py # Boundary compliance tests
+├── openenv.yaml         # spec_version: 1, type: space, runtime: fastapi
+└── Dockerfile           # Container definition
 ```
 
-## Team ZerothLayer
+## Design Decisions
 
-- **Dipak Dhangar** - Architecture, Environment, Sessions
-- **Tejas Patil** - Graders, Dataset, API
+**Progressive Context Reveal (Task 3)**: The environment deliberately withholds `dependency_map`, `file_history`, and `available_reviewers` at step 1, revealing them progressively. This forces agents to reason about risk before seeing the full picture — matching real review workflows where risk judgment precedes dependency analysis.
+
+**Thread-Safe Session Store**: All episode state lives in `sessions.py` (a UUID-keyed dict protected by `threading.Lock`). The environment class holds no state. Sessions are deleted immediately after episode completion and purged after 30 minutes of inactivity.
+
+**Deterministic Grading**: All grader functions are pure (same input → same output, no external dependencies). The Jaccard and risk functions use ordinal distance and set-theory operations — no ML models, no heuristics that could drift.
+
+**Safety Penalty**: APPROVE on CRITICAL risk applies a −0.5 penalty to merge score regardless of correctness. This discourages agents from rubber-stamping high-severity changes and reflects real-world review policy.
+
+**Bounded Outputs**: `_clamp()` ensures all grader returns are strictly in (0, 1), never exactly 0.0 or 1.0, satisfying the OpenEnv validator's strict interval requirement.
+
+## Limitations
+
+- Action spaces use fixed vocabulary (no free-text justification)
+- Blast radius is based on static dependency maps (no runtime analysis)
+- Reviewer assignment is based on name strings (no role/expertise modeling)
 
 ## License
 
 MIT
-
-<!-- force fresh validation -->

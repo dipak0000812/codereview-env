@@ -1,0 +1,22 @@
+{
+  "scenario_id": "task1_018",
+  "task": "task1",
+  "diff": "--- a/db/migrations/0042_add_index.py\n+++ b/db/migrations/0042_add_index.py\n@@ -1,5 +1,8 @@\n def upgrade():\n-    pass\n+    op.create_index('idx_orders_user_id', 'orders', ['user_id'])\n+    op.create_index('idx_orders_created_at', 'orders', ['created_at'])\n\n def downgrade():\n-    pass\n+    op.drop_index('idx_orders_user_id', table_name='orders')\n+    op.drop_index('idx_orders_created_at', table_name='orders')",
+  "dependency_map": {
+    "db/migrations/0042_add_index.py": ["db/connection.py"]
+  },
+  "file_history": {
+    "db/migrations/0042_add_index.py": {
+      "commits_last_30d": 0,
+      "last_incident": null,
+      "test_coverage": 0
+    }
+  },
+  "available_reviewers": ["alice", "bob", "charlie"],
+  "ground_truth": {
+    "risk_level": "MEDIUM",
+    "blast_radius": [],
+    "recommended_reviewer": "charlie",
+    "merge_decision": "APPROVE"
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "scenario_id": "task2_018",
+  "task": "task2",
+  "diff": "--- a/billing/invoices.py\n+++ b/billing/invoices.py\n@@ -22,6 +22,9 @@\n def generate_invoice(order_id: str) -> dict:\n     order = Order.get(order_id)\n+    if not order:\n+        raise ValueError(f'Order {order_id} not found')\n     items = order.items\n-    total = sum(i.price for i in items)\n+    total = sum(i.price * (1 - i.discount_pct / 100) for i in items)\n     return create_pdf(order, items, total)",
+  "dependency_map": {
+    "billing/invoices.py": ["payments/processor.py", "email/sender.py", "reports/generator.py"],
+    "payments/processor.py": ["payments/models.py"],
+    "reports/generator.py": ["utils/serializer.py"]
+  },
+  "file_history": {
+    "billing/invoices.py": {
+      "commits_last_30d": 4,
+      "last_incident": "2024-10-20",
+      "test_coverage": 50
+    }
+  },
+  "available_reviewers": ["alice", "bob", "charlie"],
+  "ground_truth": {
+    "risk_level": "MEDIUM",
+    "blast_radius": ["payments/processor.py", "reports/generator.py"],
+    "recommended_reviewer": "charlie",
+    "merge_decision": "REQUEST_CHANGES"
+  }
+}

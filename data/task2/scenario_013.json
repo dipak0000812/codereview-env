@@ -1,0 +1,26 @@
+{
+  "scenario_id": "task2_013",
+  "task": "task2",
+  "diff": "--- a/core/redis.py\n+++ b/core/redis.py\n@@ -8,6 +8,8 @@\n def get_client():\n-    return redis.Redis(host=REDIS_HOST, port=6379)\n+    return redis.Redis(\n+        host=REDIS_HOST,\n+        port=int(os.getenv('REDIS_PORT', 6379)),\n+        password=os.getenv('REDIS_PASSWORD'),\n+        ssl=True\n+    )",
+  "dependency_map": {
+    "core/redis.py": ["auth/cache.py", "sessions/store.py", "rate_limiting/middleware.py", "notifications/queue.py"],
+    "auth/cache.py": ["auth/oauth.py", "auth/tokens.py"],
+    "sessions/store.py": ["api/middleware.py"],
+    "rate_limiting/middleware.py": ["api/router.py"],
+    "notifications/queue.py": ["notifications/email.py", "notifications/push.py"]
+  },
+  "file_history": {
+    "core/redis.py": {
+      "commits_last_30d": 2,
+      "last_incident": null,
+      "test_coverage": 55
+    }
+  },
+  "available_reviewers": ["alice", "bob", "charlie"],
+  "ground_truth": {
+    "risk_level": "MEDIUM",
+    "blast_radius": ["auth/cache.py", "sessions/store.py", "rate_limiting/middleware.py", "notifications/queue.py"],
+    "recommended_reviewer": "charlie",
+    "merge_decision": "APPROVE"
+  }
+}

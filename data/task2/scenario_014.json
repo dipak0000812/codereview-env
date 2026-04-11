@@ -1,0 +1,23 @@
+{
+  "scenario_id": "task2_014",
+  "task": "task2",
+  "diff": "--- a/utils/serializer.py\n+++ b/utils/serializer.py\n@@ -12,4 +12,5 @@\n class BaseSerializer:\n     def to_json(self):\n-        return json.dumps(self.__dict__)\n+        return json.dumps({\n+            k: v for k, v in self.__dict__.items() if not k.startswith('_')\n+        }, default=str)",
+  "dependency_map": {
+    "utils/serializer.py": ["api/responses.py", "reports/generator.py"],
+    "api/responses.py": ["api/views.py"]
+  },
+  "file_history": {
+    "utils/serializer.py": {
+      "commits_last_30d": 3,
+      "last_incident": null,
+      "test_coverage": 80
+    }
+  },
+  "available_reviewers": ["alice", "bob"],
+  "ground_truth": {
+    "risk_level": "LOW",
+    "blast_radius": ["api/responses.py"],
+    "recommended_reviewer": "bob",
+    "merge_decision": "APPROVE"
+  }
+}

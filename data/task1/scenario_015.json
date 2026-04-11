@@ -1,0 +1,24 @@
+{
+  "scenario_id": "task1_015",
+  "task": "task1",
+  "diff": "--- a/core/crypto.py\n+++ b/core/crypto.py\n@@ -8,5 +8,5 @@\n def hash_password(password: str) -> str:\n-    return hashlib.md5(password.encode()).hexdigest()\n+    salt = os.urandom(16)\n+    return hashlib.pbkdf2_hmac('sha256', password.encode(), salt, 260000).hex()",
+  "dependency_map": {
+    "core/crypto.py": ["auth/models.py", "auth/views.py", "users/service.py"],
+    "auth/models.py": ["db/connection.py"],
+    "users/service.py": ["notifications/email.py"]
+  },
+  "file_history": {
+    "core/crypto.py": {
+      "commits_last_30d": 1,
+      "last_incident": "2023-06-10",
+      "test_coverage": 95
+    }
+  },
+  "available_reviewers": ["alice", "bob", "charlie"],
+  "ground_truth": {
+    "risk_level": "CRITICAL",
+    "blast_radius": ["auth/models.py", "auth/views.py", "users/service.py"],
+    "recommended_reviewer": "alice",
+    "merge_decision": "REQUEST_CHANGES"
+  }
+}

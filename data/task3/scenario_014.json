@@ -1,0 +1,25 @@
+{
+  "scenario_id": "task3_014",
+  "task": "task3",
+  "diff": "--- a/db/connection.py\n+++ b/db/connection.py\n@@ -5,3 +5,8 @@\n engine = create_engine(DATABASE_URL)\n+engine = create_engine(\n+    DATABASE_URL,\n+    pool_size=20,\n+    max_overflow=10,\n+    pool_timeout=30\n+)",
+  "dependency_map": {
+    "db/connection.py": ["auth/models.py", "users/models.py", "payments/models.py", "reports/generator.py"],
+    "auth/models.py": ["auth/views.py"],
+    "users/models.py": ["users/service.py"],
+    "payments/models.py": ["payments/processor.py"]
+  },
+  "file_history": {
+    "db/connection.py": {
+      "commits_last_30d": 1,
+      "last_incident": "2024-09-28",
+      "test_coverage": 40
+    }
+  },
+  "available_reviewers": ["alice", "bob", "charlie"],
+  "ground_truth": {
+    "risk_level": "HIGH",
+    "blast_radius": ["auth/models.py", "users/models.py", "payments/models.py"],
+    "recommended_reviewer": "charlie",
+    "merge_decision": "REQUEST_CHANGES"
+  }
+}
