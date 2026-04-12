@@ -51,7 +51,7 @@ class CodeReviewEnvironment(Environment):
             file_history=scenario.get("file_history", {}),
             available_reviewers=scenario["available_reviewers"],
             done=False,
-            reward=0.0,
+            reward=0.01,
             feedback=f"Analyze the diff. Step 1/{max_steps}" if task == "task3" else "Analyze the diff."
         )
         return obs
