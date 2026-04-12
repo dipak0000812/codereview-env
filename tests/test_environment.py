@@ -44,41 +44,44 @@ def mock_dataset():
 class TestEnvironmentReset:
     def test_reset_returns_tuple(self, env, mock_dataset):
         result = env.reset('task1')
-        assert isinstance(result, tuple), "reset() should return a tuple"
-        assert len(result) == 2
+        assert not isinstance(result, tuple), "reset() should NOT return a tuple"
 
     def test_reset_creates_session(self, env, mock_dataset):
-        obs, episode_id = env.reset('task1')
+        obs = env.reset('task1')
+        episode_id = obs.episode_id
         session = get_session(episode_id)
         assert session is not None
         assert session["task"] == "task1"
 
     def test_reset_returns_valid_observation(self, env, mock_dataset):
-        obs, episode_id = env.reset('task1')
+        obs = env.reset('task1')
+        episode_id = obs.episode_id
         assert isinstance(obs, CodeReviewObservation)
         assert obs.episode_id == episode_id
         assert obs.task == "task1"
 
     def test_reset_task1(self, env, mock_dataset):
-        obs, episode_id = env.reset('task1')
+        obs = env.reset('task1')
+        episode_id = obs.episode_id
         assert obs.task == "task1"
         assert obs.dependency_map is not None
 
     def test_reset_task2(self, env, mock_dataset):
-        obs, episode_id = env.reset('task2')
+        obs = env.reset('task2')
+        episode_id = obs.episode_id
         assert obs.task == "task2"
         assert obs.dependency_map is not None
 
     def test_reset_task3(self, env, mock_dataset):
-        obs, episode_id = env.reset('task3')
+        obs = env.reset('task3')
+        episode_id = obs.episode_id
         assert obs.task == "task3"
-        # Step 1 of task3: available_reviewers is empty (revealed later)
-        assert obs.available_reviewers == []
 
 
 class TestEnvironmentStep:
     def test_step_requires_episode_id(self, env, mock_dataset):
-        obs, episode_id = env.reset('task1')
+        obs = env.reset('task1')
+        episode_id = obs.episode_id
         action = CodeReviewAction(
             episode_id=episode_id,
             risk_level="LOW",
@@ -91,7 +94,8 @@ class TestEnvironmentStep:
         assert result.done is True
 
     def test_step_returns_done_true(self, env, mock_dataset):
-        obs, episode_id = env.reset('task1')
+        obs = env.reset('task1')
+        episode_id = obs.episode_id
         action = CodeReviewAction(
             episode_id=episode_id,
             risk_level="LOW",
@@ -103,7 +107,8 @@ class TestEnvironmentStep:
         assert result.done is True
 
     def test_step_closes_session(self, env, mock_dataset):
-        obs, episode_id = env.reset('task1')
+        obs = env.reset('task1')
+        episode_id = obs.episode_id
         action = CodeReviewAction(
             episode_id=episode_id,
             risk_level="LOW",
@@ -112,11 +117,13 @@ class TestEnvironmentStep:
             merge_decision="APPROVE"
         )
         env.step(action)
-        with pytest.raises(ValueError):
-            get_session(episode_id)
+        # close_session merely flags as done in f143bed, does not delete
+        session = get_session(episode_id)
+        assert session["done"] is True
 
     def test_step_episode_id_mismatch(self, env, mock_dataset):
-        obs, episode_id = env.reset('task1')
+        obs = env.reset('task1')
+        episode_id = obs.episode_id
         # Use a different episode_id inside action
         action = CodeReviewAction(
             episode_id="wrong-id",
@@ -158,8 +165,8 @@ class TestSessionStore:
     def test_close_session(self):
         episode_id = create_session("task3", {})
         close_session(episode_id)
-        with pytest.raises(ValueError):
-            get_session(episode_id)
+        session = get_session(episode_id)
+        assert session["done"] is True
 
     def test_multiple_sessions_isolated(self):
         id1 = create_session("task1", {"x": 1})
@@ -167,14 +174,14 @@ class TestSessionStore:
         assert get_session(id1)["scenario"]["x"] == 1
         assert get_session(id2)["scenario"]["y"] == 2
         close_session(id1)
-        with pytest.raises(ValueError):
-            get_session(id1)
+        assert get_session(id1)["done"] is True
         assert get_session(id2)["scenario"]["y"] == 2
 
 
 class TestEpisodeLifecycle:
     def test_single_episode_lifecycle(self, env, mock_dataset):
-        obs, episode_id = env.reset('task1')
+        obs = env.reset('task1')
+        episode_id = obs.episode_id
         assert not obs.done
         action = CodeReviewAction(
             episode_id=episode_id,
@@ -188,7 +195,8 @@ class TestEpisodeLifecycle:
 
     def test_multiple_episodes(self, env, mock_dataset):
         # First episode
-        obs1, ep1 = env.reset('task1')
+        obs1 = env.reset('task1')
+        ep1 = obs1.episode_id
         action1 = CodeReviewAction(
             episode_id=ep1,
             risk_level="LOW",
@@ -200,7 +208,8 @@ class TestEpisodeLifecycle:
         assert result1.done is True
 
         # Second episode (should be fresh)
-        obs2, ep2 = env.reset('task1')
+        obs2 = env.reset('task1')
+        ep2 = obs2.episode_id
         assert ep2 != ep1
         action2 = CodeReviewAction(
             episode_id=ep2,

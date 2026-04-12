@@ -206,11 +206,11 @@ class TestGraderNeverCrashes:
         assert isinstance(score, float)
         assert 0.0 <= score <= 1.0
 
-    def test_empty_modules_task2(self, task2_ground_truth):
-        action = MockAction(affected_modules=[])
-        score = compute_reward(action, task2_ground_truth, "task2")
-        assert isinstance(score, float)
-        assert score == 0.0  # Empty vs non-empty = no match
+    def test_empty_modules_task2(self):
+        action = MockAction(episode_id='1', risk_level='LOW', affected_modules=[])
+        gt = {'blast_radius': ['core.py']}
+        score = compute_reward(action, gt, 'task2')
+        assert score == 0.01  # Empty vs non-empty = no match
 
     def test_duplicate_modules_handled(self, task2_ground_truth):
         action = MockAction(

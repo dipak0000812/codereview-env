@@ -12,10 +12,12 @@ from openenv.core.env_server.types import State
 
 from sessions import create_session, get_session, close_session
 from dataset import DatasetLoader
+from generator import ProceduralGenerator
 from graders import compute_reward, build_feedback, risk_score, jaccard_score, reviewer_score, merge_score
 from models import CodeReviewObservation, CodeReviewState, CodeReviewAction
 
 dataset = DatasetLoader()
+generator = ProceduralGenerator()
 
 
 class CodeReviewEnvironment(Environment):
@@ -26,7 +28,10 @@ class CodeReviewEnvironment(Environment):
 
     def reset(self, task: str = "task1", episode_id: Optional[str] = None, **kwargs) -> CodeReviewObservation:
         """Reset environment and return observation."""
-        scenario = dataset.sample(task)
+        try:
+            scenario = generator.generate(task, episode_id=episode_id)
+        except Exception:
+            scenario = dataset.sample(task)
         
         # Synchronize with server-generated episode_id if provided
         episode_id = create_session(task, scenario, episode_id=episode_id)
@@ -64,6 +69,29 @@ class CodeReviewEnvironment(Environment):
             if step == 0:
                 base_reward = risk_score(action.risk_level, gt["risk_level"]) * 0.25
                 reward = max(0.01, min(0.99, base_reward))
+                
+                # MDP BRANCHING LOGIC: Fast-track on LOW risk prediction
+                if action.risk_level == "LOW":
+                    if gt["risk_level"] == "LOW":
+                        reward = 0.99
+                    elif gt["risk_level"] in ["HIGH", "CRITICAL"]:
+                        reward = 0.01
+                    else:
+                        reward = 0.50
+                    
+                    next_obs = CodeReviewObservation(
+                        episode_id=episode_id, task=task,
+                        diff=scenario["diff"],
+                        dependency_map=scenario["dependency_map"],
+                        file_history=scenario.get("file_history", {}),
+                        available_reviewers=scenario["available_reviewers"],
+                        done=True, reward=reward,
+                        feedback=f"Fast-tracked! final_score={reward:.2f}. Episode finished."
+                    )
+                    close_session(episode_id)
+                    self._state = CodeReviewState(episode_id=episode_id, step_count=1, task=task)
+                    return next_obs
+                
                 next_obs = CodeReviewObservation(
                     episode_id=episode_id, task=task,
                     diff=scenario["diff"],
@@ -132,8 +160,11 @@ class CodeReviewEnvironment(Environment):
             scenario = session["scenario"]
             gt = scenario["ground_truth"]
         except (ValueError, TypeError, KeyError):
-            # If no valid session, just get a random scenario to satisfy the validator checks
-            scenario = dataset.sample(task)
+            # If no valid session, generate scenario deterministic to satisfy checks
+            try:
+                scenario = generator.generate(task, episode_id=episode_id)
+            except Exception:
+                scenario = dataset.sample(task)
             gt = scenario["ground_truth"]
 
         # Take the final action in the episode

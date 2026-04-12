@@ -104,12 +104,21 @@ def compute_reward(action, ground_truth: dict, task: str) -> float:
         )
         
     elif task == 'task3':
-        r = 0.0
-        r += risk_score(action.risk_level, ground_truth['risk_level']) * 0.25
-        r += jaccard_score(action.affected_modules, ground_truth['blast_radius']) * 0.30
-        r += reviewer_score(action.recommended_reviewer, ground_truth['recommended_reviewer']) * 0.20
-        r += merge_score(action.merge_decision, ground_truth['merge_decision'], ground_truth['risk_level']) * 0.25
-        score = r
+        # MDP BRANCHING LOGIC: If agent predicted LOW risk and NO subsequent fields were filled (Fast Track)
+        if action.risk_level == 'LOW' and not action.affected_modules and not action.recommended_reviewer and not action.merge_decision:
+            if ground_truth['risk_level'] == 'LOW':
+                score = 0.99
+            elif ground_truth['risk_level'] in ['HIGH', 'CRITICAL']:
+                score = 0.01  # Severe penalty
+            else:
+                score = 0.50
+        else:
+            r = 0.0
+            r += risk_score(action.risk_level, ground_truth['risk_level']) * 0.25
+            r += jaccard_score(action.affected_modules, ground_truth['blast_radius']) * 0.30
+            r += reviewer_score(action.recommended_reviewer, ground_truth['recommended_reviewer']) * 0.20
+            r += merge_score(action.merge_decision, ground_truth['merge_decision'], ground_truth['risk_level']) * 0.25
+            score = r
     else:
         score = 0.01
 
