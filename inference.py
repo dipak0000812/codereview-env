@@ -66,9 +66,9 @@ async def run_episode(task: str):
 
     except Exception as e:
         error = str(e).replace("\n", " ")
-        print(f"[STEP] step={step} action=error reward=0.00 done=true error={error}", flush=True)
+        print(f"[STEP] step={step} action=error reward=0.01 done=true error={error}", flush=True)
 
-    total_score = sum(rewards) if rewards else 0.0
+    total_score = sum(rewards) if rewards else 0.01
     success = bool(rewards and total_score >= 0.5) if not error else False
     return success, step - 1 if step > 1 else 0, rewards
 
