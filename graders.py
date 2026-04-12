@@ -29,10 +29,10 @@ def risk_score(predicted: str, truth: str) -> float:
         1.0 if exact match, 0.5 if 1 level, 0.2 if 2 levels, 0.0 otherwise
     """
     if predicted not in RISK_LEVELS or truth not in RISK_LEVELS:
-        return 0.0
+        return 0.01
 
     diff = abs(RISK_LEVELS.index(predicted) - RISK_LEVELS.index(truth))
-    return {0: 1.0, 1: 0.5, 2: 0.2, 3: 0.0}[diff]
+    return {0: 0.99, 1: 0.5, 2: 0.2, 3: 0.01}[diff]
 
 
 def jaccard_score(predicted: List[str], truth: List[str]) -> float:
@@ -49,13 +49,13 @@ def jaccard_score(predicted: List[str], truth: List[str]) -> float:
 
     # Both empty = perfect match
     if not a and not b:
-        return 1.0
+        return 0.99
 
     # One empty, other not = no match
     if not a or not b:
-        return 0.0
+        return 0.01
 
-    return len(a & b) / len(a | b)
+    return max(0.01, min(0.99, len(a & b) / len(a | b)))
 
 
 def reviewer_score(predicted: str, truth: str) -> float:
@@ -68,7 +68,7 @@ def reviewer_score(predicted: str, truth: str) -> float:
     Returns:
         1.0 if exact match (ignoring whitespace), 0.0 otherwise
     """
-    return 1.0 if predicted.strip().lower() == truth.strip().lower() else 0.0
+    return 0.99 if predicted.strip().lower() == truth.strip().lower() else 0.01
 
 
 def merge_score(predicted: str, truth: str, risk_level: str) -> float:
@@ -83,14 +83,14 @@ def merge_score(predicted: str, truth: str, risk_level: str) -> float:
         1.0 if correct, 0.0 if wrong
         CRITICAL safety rule: APPROVE on CRITICAL = -0.5 penalty
     """
-    base = 1.0 if predicted == truth else 0.0
+    base = 0.99 if predicted == truth else 0.01
 
     # CRITICAL safety rule: APPROVE on CRITICAL risk = -0.5 penalty
     # This is ADDITIVE, NOT multiplicative (keeps gradients stable)
     if predicted == 'APPROVE' and risk_level == 'CRITICAL':
         base -= 0.5
 
-    return max(0.0, base)
+    return max(0.01, base)
 
 
 def compute_reward(action, ground_truth: dict, task: str) -> float:
@@ -113,7 +113,7 @@ def compute_reward(action, ground_truth: dict, task: str) -> float:
             else:
                 score = 0.50
         else:
-            r = 0.0
+            r = 0.01
             r += risk_score(action.risk_level, ground_truth['risk_level']) * 0.25
             r += jaccard_score(action.affected_modules, ground_truth['blast_radius']) * 0.30
             r += reviewer_score(action.recommended_reviewer, ground_truth['recommended_reviewer']) * 0.20

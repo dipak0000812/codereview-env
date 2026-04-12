@@ -238,25 +238,25 @@ class TestCriticalSafetyRule:
 
     def test_correct_block_on_critical_no_penalty(self):
         score = merge_score("BLOCK", "BLOCK", "CRITICAL")
-        assert score == 1.0
+        assert score == 0.99
 
     def test_wrong_approve_on_critical_is_zero(self):
         # Wrong decision + penalty = 0.0 + (-0.5) = max(0, -0.5) = 0.0
         score = merge_score("APPROVE", "BLOCK", "CRITICAL")
-        assert score == 0.0
+        assert score == 0.01
 
     def test_correct_approve_on_critical_gets_penalty(self):
         # Correct decision + penalty = 1.0 + (-0.5) = 0.5
         score = merge_score("APPROVE", "APPROVE", "CRITICAL")
-        assert score == 0.5
+        assert score == 0.49
 
     def test_approve_on_non_critical_no_penalty(self):
         score = merge_score("APPROVE", "APPROVE", "HIGH")
-        assert score == 1.0
+        assert score == 0.99
 
     def test_approve_on_low_risk_no_penalty(self):
         score = merge_score("APPROVE", "APPROVE", "LOW")
-        assert score == 1.0
+        assert score == 0.99
 
 
 class TestGradersDeterministic:
